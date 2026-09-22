@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM python:3.11-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -15,4 +15,4 @@ RUN pip install -r requirements.txt
 EXPOSE 5000
 
 # Command to run the application (adjust if you have a different start command)
-CMD ["python", "scripts/train_model.py"]
+CMD ["python", "-m", "scripts.train_model"]

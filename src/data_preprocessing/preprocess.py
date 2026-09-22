@@ -1,5 +1,42 @@
+import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
+
+# Open-Meteo daily field -> our column name. The archive (history) and forecast (live) APIs both serve these.
+DAILY_FIELDS = {
+    'temperature_2m_max': 'tmax', 'temperature_2m_min': 'tmin', 'temperature_2m_mean': 'tmean',
+    'relative_humidity_2m_mean': 'rh', 'precipitation_sum': 'rain', 'wind_speed_10m_max': 'wind',
+    'wind_direction_10m_dominant': 'wdir', 'surface_pressure_mean': 'pres',
+}
+# The model's input columns, in order. Training and live scoring both use exactly this list.
+FEATURES = ['lat', 'lon', 'doy_sin', 'doy_cos', 'tmax', 'tmin', 'tmean', 'rh', 'rain', 'wind', 'wdir_sin', 'wdir_cos',
+            'pres', 'tmax_lag1', 'tmax_lag2', 'tmax_lag3', 'rain_lag1', 'tmax_delta1', 'pres_delta1']
+
+
+def make_features(df):
+    """Build the model's features from one row per city and day.
+
+    Args:
+        df (pd.DataFrame): columns city, lat, lon, date (YYYY-MM-DD) and the DAILY_FIELDS columns.
+
+    Returns:
+        pd.DataFrame: the same rows, sorted by city and date, with FEATURES filled and
+        target = the next day's tmax (NaN on each city's last day). Lags are NaN on the first
+        days of each city; HistGradientBoosting handles NaN natively.
+    """
+    df = df.sort_values(['city', 'date']).copy()
+    doy = pd.to_datetime(df['date']).dt.dayofyear
+    df['doy_sin'], df['doy_cos'] = np.sin(2 * np.pi * doy / 365.25), np.cos(2 * np.pi * doy / 365.25)
+    rad = np.radians(df['wdir'].astype(float))
+    df['wdir_sin'], df['wdir_cos'] = np.sin(rad), np.cos(rad)
+    g = df.groupby('city')
+    for k in (1, 2, 3):
+        df[f'tmax_lag{k}'] = g['tmax'].shift(k)
+    df['rain_lag1'] = g['rain'].shift(1)
+    df['tmax_delta1'] = df['tmax'] - df['tmax_lag1']
+    df['pres_delta1'] = df['pres'] - g['pres'].shift(1)
+    df['target'] = g['tmax'].shift(-1)
+    return df
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 

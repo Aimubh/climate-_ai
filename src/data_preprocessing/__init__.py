@@ -7,8 +7,7 @@ from .preprocess import (
     clean_data,
     transform_features,
     handle_missing_values,
-    scale_data,
-    feature_engineering
+    scale_data
 )
 
 __all__ = [
@@ -16,5 +15,4 @@ __all__ = [
     "transform_features",
     "handle_missing_values",
     "scale_data",
-    "feature_engineering"
 ]

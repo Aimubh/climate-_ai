@@ -6,8 +6,7 @@
 from .model import (
     train_model,
     save_model,
-    load_model,
-    tune_hyperparameters
+    load_model
 )
 from .evaluation import (
     evaluate_model,
@@ -19,7 +18,6 @@ __all__ = [
     "train_model",
     "save_model",
     "load_model",
-    "tune_hyperparameters",
     "evaluate_model",
     "cross_validate_model",
     "calculate_metrics"

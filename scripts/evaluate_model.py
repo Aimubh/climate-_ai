@@ -7,8 +7,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from src.models.model import load_model  # Assuming load_model is defined in src/models/model.py
-from src.data_preprocessing.preprocess import preprocess_data  # Assuming preprocess_data is defined in preprocess.py
-from src.config import RESULTS_DIR, MODEL_DIR
+from src.config import RESULTS_DIR, MODEL_DIR, PROCESSED_DATA_DIR
 import joblib
 
 def load_data(data_path):
@@ -35,7 +34,7 @@ def evaluate_model(model, X_test, y_test):
 def main():
     # Paths to the data and model
     model_path = os.path.join(MODEL_DIR, 'trained_model.pkl')  # Adjust the file name based on your model's format
-    data_path = os.path.join(RESULTS_DIR, 'processed_test_data.csv')  # Example data file
+    data_path = os.path.join(PROCESSED_DATA_DIR, 'processed_test_data.csv')  # Example data file
 
     # Load data
     data = load_data(data_path)

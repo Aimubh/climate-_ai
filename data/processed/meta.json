@@ -1,0 +1,21 @@
+{
+ "start": "2015-01-01",
+ "split": "2025-09-21",
+ "end": "2026-09-21",
+ "train_rows": 46992,
+ "test_rows": 4380,
+ "cities": [
+  "New Delhi",
+  "Jaipur",
+  "Lucknow",
+  "Ahmedabad",
+  "Bhopal",
+  "Kolkata",
+  "Nagpur",
+  "Mumbai",
+  "Pune",
+  "Hyderabad",
+  "Chennai",
+  "Bengaluru"
+ ]
+}

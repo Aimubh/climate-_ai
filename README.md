@@ -1,163 +1,102 @@
-# AI Climate Prediction
+# Climate AI
 
-This project leverages machine learning and artificial intelligence (AI) techniques to predict climate-related outcomes, such as temperature changes, precipitation patterns, and other environmental factors. It aims to provide valuable insights for climate science, environmental monitoring, and policy-making.
+Next-day temperature forecasts for twelve Indian cities, built from real daily readings, with a
+weather reporter that explains what changed and why, and a website that shows all of it live.
 
-<img src="./assets/images/weather.gif">
+Three parts, one repository:
 
-## Overview
+| Part | What it does | Where |
+|---|---|---|
+| Pipeline | Fetches 11 years of daily history, trains a model, evaluates it on a held-out year, scores today | `scripts/`, `src/` |
+| Reporter | Reads the live feed and writes an on-air bulletin: what changed, the likely cause, and which city the weather reaches next | `scripts/weather_reporter.py` |
+| Site | Scroll-driven page with live readings, hold-to-forecast, the bulletin, and a chat with the reporter | `site/` |
 
-The **AI Climate Prediction** project focuses on building predictive models using historical climate data and AI to forecast future climate trends. The project applies various machine learning algorithms to analyze large datasets, predict climate variables, and visualize the results to make predictions that can help inform sustainable solutions.
-
-## Project Structure
-
-The project is organized as follows:
-
-```
-ai-climate-prediction/
-│
-├── data/                          # Raw and processed data
-│   ├── raw/                       # Original, unprocessed datasets
-│   ├── processed/                 # Cleaned and preprocessed datasets
-│   └── external/                  # External data (e.g., APIs, third-party data)
-│
-├── notebooks/                     # Jupyter notebooks for experimentation and exploration
-│   ├── exploratory_data_analysis/ # EDA notebooks (e.g., initial data exploration)
-│   └── model_training/            # Notebooks for training and evaluating models
-│
-├── src/                           # Source code for the project
-│   ├── __init__.py                # Makes this folder a package
-│   ├── data_preprocessing/        # Data cleaning, transformation, and feature engineering
-│   ├── models/                    # Machine learning models
-│   ├── visualization/             # Data and result visualization
-│   └── config.py                  # Configuration file (e.g., parameters, settings for models)
-│
-├── scripts/                       # Standalone scripts for common tasks
-│   ├── train_model.py             # Script to train the model
-│   ├── evaluate_model.py          # Script to evaluate the trained model
-│   └── generate_predictions.py    # Script to generate predictions from trained models
-│
-├── tests/                         # Unit tests and test scripts
-│   ├── test_data_preprocessing.py # Tests for the data preprocessing functions
-│   ├── test_models.py             # Tests for model training and evaluation
-│   └── test_visualization.py      # Tests for visualization functions
-│
-├── docs/                          # Documentation (project overview, setup, usage)
-│   ├── index.md                   # Main documentation file
-│   └── usage.md                   # Usage instructions
-│
-├── outputs/                       # Output directory for results
-│   ├── logs/                      # Log files (e.g., training logs, error logs)
-│   ├── model/                     # Saved model files (e.g., .h5, .pkl, .pt)
-│   └── results/                   # Predictions and results (e.g., CSV files, plots)
-│
-├── Dockerfile                     # Dockerfile to containerize the project
-├── requirements.txt               # Python dependencies (e.g., libraries, frameworks)
-├── environment.yml                # Conda environment file (optional, if using Conda)
-├── setup.py                       # Setup script (for packaging the project)
-└── LICENSE                        # Project license
-```
-
-## Getting Started
-
-### Prerequisites
-
-Ensure you have the following installed on your machine:
-
-- Python 3.6 or later
-- Jupyter (for running notebooks)
-- Docker (optional, for containerization)
-- Conda (optional, if you prefer using conda environments)
-
-### Installation
-
-Clone the repository:
+## Quick start
 
 ```bash
-git clone https://github.com/jmrashed/ai-climate-prediction.git
-cd ai-climate-prediction
-```
-
-#### Using `pip`:
-
-Install dependencies using `pip`:
-
-```bash
+git clone https://github.com/Aimubh/climate-_ai.git
+cd climate-_ai
+python -m venv .venv
+.venv\Scripts\activate          # Windows;  source .venv/bin/activate on macOS/Linux
 pip install -r requirements.txt
 ```
 
-#### Using `conda`:
-
-Alternatively, you can create a Conda environment and install the dependencies:
+Run the pipeline from the project root. Every script is a module, so use `python -m`:
 
 ```bash
-conda env create -f environment.yml
-conda activate ai-climate-prediction
+python -m scripts.fetch_weather        # real daily history for 12 cities since 2015, from Open-Meteo
+python -m scripts.train_model          # gradient-boosted trees on next-day max temperature
+python -m scripts.evaluate_model       # MSE and R2 on the held-out last 365 days
+python -m scripts.predict_today --out site/assets/forecast.json     # tomorrow's estimate per city
 ```
 
-### Running the Project
-
-1. **Data Preprocessing**:
-   Preprocess the data using the script or by running the relevant Jupyter notebook under `notebooks/exploratory_data_analysis/`.
-
-2. **Training the Model**:
-   You can train the model using the script `scripts/train_model.py` or by running the relevant notebook in `notebooks/model_training/`.
-
-3. **Model Evaluation**:
-   After training, evaluate the model using `scripts/evaluate_model.py`.
-
-4. **Making Predictions**:
-   Once the model is trained and evaluated, use `scripts/generate_predictions.py` to generate predictions.
-
-### Docker Usage
-
-To containerize the project and run it inside a Docker container, use the following commands:
-
-1. Build the Docker image:
-   ```bash
-   docker build -t ai-climate-prediction .
-   ```
-
-2. Run the Docker container:
-   ```bash
-   docker run -it ai-climate-prediction
-   ```
-
-### Running Tests
-
-To run tests for the project, use `pytest`:
+Then the reporter, in one of three modes:
 
 ```bash
-pytest tests/
+python -m scripts.weather_reporter --local  --out site/assets/bulletin.json   # local model through Ollama
+python -m scripts.weather_reporter          --out site/assets/bulletin.json   # Claude, needs ANTHROPIC_API_KEY
+python -m scripts.weather_reporter --no-llm --out site/assets/bulletin.json   # numbers only, no model
 ```
 
-## Contributing
+And the site:
 
-We welcome contributions! If you'd like to help improve the project, feel free to fork the repository, make your changes, and submit a pull request. Here are some ways you can contribute:
+```bash
+cd site && python -m http.server 8090
+```
 
-- Fix bugs or improve the performance of the AI models
-- Improve the documentation
-- Add new features (e.g., new machine learning models or visualization techniques)
+Open `http://127.0.0.1:8090/`. Double-clicking `site/index.html` also works.
 
-Please refer to the `CONTRIBUTING.md` (if available) for more guidelines.
+## What the model is
+
+- **Data:** Open-Meteo's archive, daily values for New Delhi, Jaipur, Lucknow, Ahmedabad, Bhopal, Kolkata,
+  Nagpur, Mumbai, Pune, Hyderabad, Chennai and Bengaluru, from 2015-01-01 to yesterday. About 51,000 city-days.
+- **Target:** the next day's maximum temperature.
+- **Features (19):** the day's max, min and mean temperature, humidity, rain, wind speed and direction, pressure,
+  three days of temperature lags, the day-on-day temperature and pressure change, day of year, latitude and longitude.
+- **Model:** `HistGradientBoostingRegressor` from scikit-learn. About 1 MB on disk.
+- **Split:** time-ordered. The last 365 days are never seen in training.
+- **Result** on the held-out year: mean absolute error **0.92 °C**, against **1.02 °C** for simply carrying today's
+  high forward. The site prints both numbers under every forecast.
+
+Today's row for live scoring comes from the forecast feed, so the last hours of "today" are the feed's
+estimate rather than observation. That is the honest limit of forecasting before the day ends.
+
+## The reporter
+
+`scripts/weather_reporter.py` pulls live conditions and three days of history for the twelve cities, works out
+what changed, projects where the air over each city goes in 24 hours on the current wind, and asks a language
+model to narrate it as a broadcast correspondent. The reply is validated JSON: headline, spoken script, changes with
+causes, the next city with a time window and confidence, and a watch list.
+
+- `--local` uses a model on your own machine through [Ollama](https://ollama.com) (default `qwen2.5:7b`, about 4.7 GB).
+  Nothing leaves the machine. About one minute per bulletin on a small GPU.
+- Without a flag it uses Claude Opus 5 over the Anthropic API. Set `ANTHROPIC_API_KEY`.
+- `--no-llm` writes a rules-only bulletin with the numbers and the downwind city, no cause.
+
+A small guard checks the predicted cities against the feed and repairs the prediction if a model puts anything but a
+known city name there. The site labels which model wrote each bulletin.
+
+## The site
+
+`site/index.html` plus `site/assets/`. Plain HTML, CSS and JavaScript, no build step. Live readings and the seven-day
+cards come from Open-Meteo in the browser. The model's estimate and the bulletin come from the two JSON files the
+scripts write. The "Ask the reporter" chat talks to Ollama on the same machine; on a public host the button stays hidden.
+
+`site-review/` holds the design package and a headless Chrome self-test (`node test.mjs`, no dependencies) that
+screenshots the page at desktop and phone sizes, runs the caption flick test and contrast audit, exercises the hold
+button, the form and the chat, and checks for console errors.
+
+## Data sources
+
+- [Open-Meteo](https://open-meteo.com): current conditions, forecasts and the historical archive. Free, no key.
+- India Meteorological Department station data is the intended next source. Its public site exposes a JSON feed
+  for 1,729 stations; its official API at api.imd.gov.in needs permission from IMD.
+
+## Credits
+
+Started from [jmrashed/ai-climate-prediction](https://github.com/jmrashed/ai-climate-prediction) (MIT), whose project
+layout and script skeletons this repository keeps. Everything that runs today was built on top of that scaffold.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## Contact
-
-For any questions, feel free to reach out:
-
-- Email: jmrashed@example.com
-- GitHub: [@jmrashed](https://github.com/jmrashed)
-
----
-
-### Acknowledgements
-
-- [TensorFlow](https://www.tensorflow.org/) or [PyTorch](https://pytorch.org/) for the deep learning framework.
-- [Scikit-learn](https://scikit-learn.org/stable/) for machine learning tools.
-- [Jupyter](https://jupyter.org/) for interactive notebooks.
- 
+MIT, see [LICENSE](LICENSE).

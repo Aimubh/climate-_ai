@@ -1,34 +1,19 @@
-# Core data science libraries
-numpy>=1.23.0
-pandas>=1.5.0
-scikit-learn>=1.1.0
-matplotlib>=3.6.0
-seaborn>=0.11.2
+# Core pipeline (tested with pandas 2.3 and scikit-learn 1.6)
+numpy>=1.26
+pandas>=2.2,<3
+scikit-learn>=1.6,<1.9
+joblib>=1.3
 
-# Deep learning frameworks (choose one based on your model)
-# torch>=1.13.0   # PyTorch compatible with Python 3.13
-# or
-# tensorflow>=2.12.0   # TensorFlow compatible with earlier Python versions (e.g., Python 3.10/3.11)
+# Reporter and chat (Claude over the API, or a local model through Ollama)
+anthropic>=1.0
+pydantic>=2
 
-# For Jupyter Notebooks
-jupyter>=1.0.0
+# Notebooks and plots
+matplotlib>=3.8
+seaborn>=0.13
+notebook>=7
 
-# For data collection and web scraping (optional if using APIs)
-requests>=2.25.0
-
-# For testing
-pytest>=7.0.0
-
-# Optional for data preprocessing
-scipy>=1.7.0
-
-# If you plan to use the model on a cloud service (AWS, GCP, etc.)
-boto3>=1.18.0  # AWS SDK (if using AWS)
-
-# For visualizations
-plotly>=5.0.0
-
-# For containerization (if using Docker)
-docker>=5.0.0
-
- torch>=2.5.1
+# Tests and small utilities
+pytest>=7
+requests>=2.31
+beautifulsoup4>=4.12

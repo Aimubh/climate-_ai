@@ -1,0 +1,122 @@
+{
+ "headline": "Heavy showers expected in Chennai and Hyderabad tomorrow",
+ "dateline": "22 September 2026, 17:45 IST",
+ "on_air": "Good evening, viewers. Today, temperatures are on the rise, with New Delhi and Ahmedabad seeing highs of 36.5 and 35.0 degrees Celsius, respectively. Lucknow and Kolkata are experiencing thunderstorms, with Lucknow expecting 13.2 mm of rain tomorrow. In Mumbai, we're seeing a slight drop in temperature, with a high of 29.5 degrees Celsius. Tomorrow, the focus shifts to heavy showers in Chennai, with a maximum of 33.8 degrees Celsius and 15.1 mm of rain. Hyderabad is also expecting heavy showers, with a high of 28.4 degrees. The air over New Delhi is moving towards Lucknow, while the air over Ahmedabad is heading towards Mumbai. The wind over Bhopal is strong at 9.0 km/h from the north, and it will likely move towards Nagpur in the next 24 hours, with a high confidence of 90%. This is the weather update from our team. Stay tuned for more updates.",
+ "changes": [
+  {
+   "city": "Lucknow",
+   "what_changed": "Max temperature increased by 0.6°C, and rain is expected to be thunderstorm with hail, 13.2 mm",
+   "why": "This is likely due to the monsoon withdrawal and the thunderstorm outflow."
+  },
+  {
+   "city": "Kolkata",
+   "what_changed": "Max temperature decreased by 2.1°C, and rain is expected to be thunderstorm, 23.4 mm",
+   "why": "This is likely due to the monsoon withdrawal and the thunderstorm outflow."
+  },
+  {
+   "city": "Mumbai",
+   "what_changed": "Max temperature decreased by 0.5°C, and rain is expected to be showers, 6.9 mm",
+   "why": "This is likely due to the monsoon withdrawal and the thunderstorm outflow."
+  }
+ ],
+ "next": {
+  "system": "the rain over Mumbai",
+  "from_city": "Mumbai",
+  "to_city": "Pune",
+  "eta_hours": 24,
+  "confidence": "high",
+  "reason": "The wind over Mumbai is strong at 6.8 km/h from the west, moving towards Pune."
+ },
+ "watch": [
+  "Keep an eye on heavy showers in Chennai and Hyderabad tomorrow.",
+  "Stay prepared for thunderstorms in Lucknow and Kolkata."
+ ],
+ "source": "local:qwen2.5:7b",
+ "generated_at": "2026-09-22T17:53+05:30",
+ "cities": [
+  {
+   "city": "New Delhi",
+   "temp_c": 33.6,
+   "sky": "clear sky",
+   "wind_kmh": 10.3,
+   "wind_from": "north-west"
+  },
+  {
+   "city": "Jaipur",
+   "temp_c": 33.3,
+   "sky": "clear sky",
+   "wind_kmh": 6.9,
+   "wind_from": "north-west"
+  },
+  {
+   "city": "Lucknow",
+   "temp_c": 30.4,
+   "sky": "clear sky",
+   "wind_kmh": 4.9,
+   "wind_from": "east"
+  },
+  {
+   "city": "Ahmedabad",
+   "temp_c": 32.7,
+   "sky": "clear sky",
+   "wind_kmh": 5.0,
+   "wind_from": "north"
+  },
+  {
+   "city": "Bhopal",
+   "temp_c": 27.2,
+   "sky": "drizzle",
+   "wind_kmh": 9.0,
+   "wind_from": "north"
+  },
+  {
+   "city": "Kolkata",
+   "temp_c": 27.0,
+   "sky": "overcast",
+   "wind_kmh": 10.2,
+   "wind_from": "east"
+  },
+  {
+   "city": "Nagpur",
+   "temp_c": 26.4,
+   "sky": "drizzle",
+   "wind_kmh": 1.2,
+   "wind_from": "south-west"
+  },
+  {
+   "city": "Mumbai",
+   "temp_c": 28.1,
+   "sky": "partly cloudy",
+   "wind_kmh": 6.8,
+   "wind_from": "west"
+  },
+  {
+   "city": "Pune",
+   "temp_c": 24.1,
+   "sky": "drizzle",
+   "wind_kmh": 9.1,
+   "wind_from": "west"
+  },
+  {
+   "city": "Hyderabad",
+   "temp_c": 28.8,
+   "sky": "overcast",
+   "wind_kmh": 7.9,
+   "wind_from": "north-west"
+  },
+  {
+   "city": "Chennai",
+   "temp_c": 31.9,
+   "sky": "overcast",
+   "wind_kmh": 2.8,
+   "wind_from": "south-west"
+  },
+  {
+   "city": "Bengaluru",
+   "temp_c": 25.0,
+   "sky": "overcast",
+   "wind_kmh": 11.6,
+   "wind_from": "north-west"
+  }
+ ]
+}

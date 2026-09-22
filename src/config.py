@@ -3,7 +3,7 @@
 import os
 
 # Set paths for directories
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # project root
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw')
 PROCESSED_DATA_DIR = os.path.join(DATA_DIR, 'processed')
@@ -11,6 +11,8 @@ EXTERNAL_DATA_DIR = os.path.join(DATA_DIR, 'external')
 MODEL_DIR = os.path.join(BASE_DIR, 'outputs', 'model')
 RESULTS_DIR = os.path.join(BASE_DIR, 'outputs', 'results')
 LOGS_DIR = os.path.join(BASE_DIR, 'outputs', 'logs')
+for _d in (RAW_DATA_DIR, PROCESSED_DATA_DIR, EXTERNAL_DATA_DIR, MODEL_DIR, RESULTS_DIR, LOGS_DIR):
+    os.makedirs(_d, exist_ok=True)
 
 # Hyperparameters for model training
 HYPERPARAMETERS = {
@@ -37,6 +39,14 @@ MODEL_CONFIG = {
 LOGGING_CONFIG = {
     'level': 'INFO',  # Logging level (DEBUG, INFO, WARNING, ERROR)
     'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+}
+
+# The cities the project reads, trains on and forecasts (name -> latitude, longitude)
+CITIES = {
+    'New Delhi': (28.61, 77.21), 'Jaipur': (26.91, 75.79), 'Lucknow': (26.85, 80.95),
+    'Ahmedabad': (23.02, 72.57), 'Bhopal': (23.26, 77.41), 'Kolkata': (22.57, 88.36),
+    'Nagpur': (21.15, 79.09), 'Mumbai': (19.08, 72.88), 'Pune': (18.52, 73.86),
+    'Hyderabad': (17.39, 78.49), 'Chennai': (13.08, 80.27), 'Bengaluru': (12.97, 77.59),
 }
 
 # Other configurations

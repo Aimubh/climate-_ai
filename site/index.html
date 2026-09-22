@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Climate Prediction</title>
+<meta name="description" content="AI Climate Prediction turns India's live weather readings into next-day forecasts you can check against the sky.">
+<meta name="theme-color" content="#0b161d">
+<!-- DEPLOY STEP: patch og:url and og:image with the live absolute URL before zipping -->
+<meta property="og:title" content="AI Climate Prediction">
+<meta property="og:description" content="Tomorrow, read today. Live Indian weather readings turned into next-day forecasts you can check.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://example.com/">
+<meta property="og:image" content="https://example.com/assets/og.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b161d'/%3E%3Cpath d='M8 24c10-10 22 10 32 0s12-6 16 0M8 34c10-10 22 10 32 0s12-6 16 0M8 44c10-10 22 10 32 0s12-6 16 0' fill='none' stroke='%2367e8c5' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#0b161d;--panel:#12232c;--panel-2:#172e39;
+  --accent:#67e8c5;--accent-hover:#8ff2d6;--accent-muted:rgba(103,232,197,.18);
+  --text-secondary:#a9bcc0;--text-primary:#eaf3f1;
+  --rain:#6fb4ff;--heat:#ffb35c;--line:rgba(169,188,192,.16);--line-strong:rgba(169,188,192,.42);
+  --ease:cubic-bezier(.22,.61,.36,1);--ease-out:cubic-bezier(.16,1,.3,1);
+  --tshadow:0 1px 2px rgba(5,5,10,.95),0 3px 12px rgba(5,5,10,.78),0 10px 44px rgba(5,5,10,.8);
+  --display:"Unbounded",system-ui,sans-serif;--body:"Manrope",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:hidden;overflow-x:clip;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{overflow-x:hidden;overflow-x:clip;background:var(--canvas);color:var(--text-primary);font-family:var(--body);font-size:17px;line-height:1.6;opacity:0;animation:pagein 1.1s var(--ease) forwards}
+@keyframes pagein{to{opacity:1}}
+a{color:inherit}
+img,svg,canvas,video{display:block;max-width:100%}
+button,input{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.08;letter-spacing:-.01em;text-wrap:balance}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--accent);color:var(--canvas);padding:10px 14px;border-radius:8px;font-weight:600;transition:top .2s}
+.skip:focus{top:12px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* fixed environment layer */
+.env{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.env .glow{position:absolute;width:70vmax;height:70vmax;border-radius:50%;filter:blur(60px);opacity:.28;will-change:transform}
+.env .g1{left:-20vmax;top:-10vmax;background:radial-gradient(circle,rgba(103,232,197,.35),transparent 60%);animation:drift1 90s linear infinite -30s}
+.env .g2{right:-25vmax;bottom:-20vmax;background:radial-gradient(circle,rgba(111,180,255,.28),transparent 60%);animation:drift2 110s linear infinite -55s}
+@keyframes drift1{0%{transform:translate(0,0)}50%{transform:translate(12vmax,10vmax)}100%{transform:translate(0,0)}}
+@keyframes drift2{0%{transform:translate(0,0)}50%{transform:translate(-14vmax,-8vmax)}100%{transform:translate(0,0)}}
+.env .grain{position:absolute;inset:0;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px clamp(16px,4vw,48px);background:linear-gradient(rgba(11,22,29,.86),rgba(11,22,29,.5));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(169,188,192,.08)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:.02em}
+.brand svg{width:26px;height:26px}
+.nav ul{display:flex;gap:26px;list-style:none;align-items:center}
+.nav ul a{text-decoration:none;font-size:14px;color:var(--text-secondary);transition:color .25s var(--ease)}
+.nav ul a:hover{color:var(--text-primary)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:999px;border:1px solid transparent;text-decoration:none;font-weight:600;font-size:15px;cursor:pointer;transition:transform .3s var(--ease-out),background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease),box-shadow .3s var(--ease)}
+.btn.primary{background:var(--accent);color:var(--canvas)}
+.btn.primary:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 10px 30px rgba(103,232,197,.25)}
+.btn.ghost{border-color:var(--line-strong);color:var(--text-primary);background:rgba(11,22,29,.35)}
+.btn.ghost:hover{border-color:var(--accent);transform:translateY(-1px)}
+.btn.small{padding:9px 16px;font-size:14px}
+.nav .btn.small{display:inline-flex}
+@media (max-width:720px){.nav ul{display:none}}
+
+/* hero */
+.hero{position:relative;height:500vh;z-index:1}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--canvas)}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;will-change:transform;transform:translateZ(0)}
+.scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 120% 90% at 50% 45%,rgba(10,10,18,0) 35%,rgba(10,10,18,.62) 100%)}
+.bands{position:absolute;inset:0}
+.band{position:absolute;right:6vw;top:50%;transform:translateY(-50%);width:min(600px,54vw);opacity:0;pointer-events:none;text-shadow:var(--tshadow);--k:0}
+.band.on{pointer-events:auto}
+.band::before{content:"";position:absolute;inset:-14% -10%;z-index:-1;pointer-events:none;opacity:calc(.25 + .75*var(--k,1));background:radial-gradient(ellipse 74% 62% at 50% 50%,rgba(5,5,10,.66) 0%,rgba(5,5,10,.44) 46%,rgba(5,5,10,0) 76%)}
+.band[data-fx="blur"]::before{background:radial-gradient(ellipse 74% 62% at 50% 50%,rgba(5,5,10,.72) 0%,rgba(5,5,10,.48) 46%,rgba(5,5,10,0) 76%)}
+.band .line{display:block;font-family:var(--display);font-weight:700;font-size:clamp(28px,4.2vw,56px);line-height:1.1;letter-spacing:-.01em}
+.band .line+.line{margin-top:.25em}
+.band .w{display:inline-block;white-space:pre}
+.band .c{display:inline-block}
+.band .btn{text-shadow:none}
+/* (c) blur to sharp */
+.band[data-fx="blur"] .stack{position:relative}
+.band[data-fx="blur"] .soft{position:absolute;inset:0;filter:blur(10px);opacity:calc(1 - var(--k,0))}
+.band[data-fx="blur"] .sharp{opacity:var(--k,0)}
+/* (f) drift down */
+.band[data-fx="drift"] .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.8,1);opacity:var(--kc);transform:translateY(calc((1 - var(--kc))*-26px))}
+/* (b) grid snap-align, horizontal only */
+.band[data-fx="grid"] .c{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.6,1);opacity:var(--kc);transform:translateX(calc((1 - var(--kc))*var(--jx,0px)))}
+/* (e) word rise into staged settle */
+.band[data-fx="rise"]{width:min(680px,60vw)}
+.band[data-fx="rise"] .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*3,1);opacity:var(--kc);transform:translateY(calc((1 - var(--kc))*22px))}
+.band[data-fx="rise"] h1{font-size:clamp(34px,5vw,68px);margin-bottom:.35em}
+.band[data-fx="rise"] .sub{--ks:clamp(0,(var(--k,0) - .62)*4,1);opacity:var(--ks);font-size:clamp(16px,1.35vw,20px);color:var(--text-primary);max-width:46ch;transform:translateY(calc((1 - var(--ks))*10px))}
+.band[data-fx="rise"] .cta-row{--kb:clamp(0,(var(--k,0) - .76)*5,1);opacity:var(--kb);transform:translateY(calc((1 - var(--kb))*10px));display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.chip{position:absolute;left:clamp(16px,4vw,48px);bottom:28px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--text-secondary);padding:8px 12px;background:rgba(8,8,15,.55);border:1px solid rgba(96,96,126,.3);border-radius:10px;backdrop-filter:blur(10px);text-shadow:0 1px 3px rgba(5,5,10,.85);display:flex;align-items:center;gap:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);position:relative}
+.dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid var(--accent);opacity:0;animation:pulse 3.2s var(--ease) infinite -1.2s}
+@keyframes pulse{0%{transform:scale(.6);opacity:.9}70%{transform:scale(1.6);opacity:0}100%{opacity:0}}
+.cue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);color:var(--text-secondary);font-family:var(--mono);font-size:11px;letter-spacing:.14em;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:.85}
+.cue svg{width:16px;height:16px;animation:bob 2.6s var(--ease) infinite -1s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+.static-copy{display:none;position:absolute;inset:0;padding:96px 20px 64px;flex-direction:column;justify-content:flex-end;text-shadow:var(--tshadow)}
+.static-copy::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(11,22,29,0) 20%,rgba(11,22,29,.78) 70%);pointer-events:none}
+.static-copy>*{position:relative}
+.static-copy h1{font-size:clamp(34px,9vw,46px);margin-bottom:14px}
+.static-copy p{max-width:40ch;margin-bottom:22px}
+.static-copy .cta-row{display:flex;gap:10px;flex-wrap:wrap}
+.static-copy .btn{text-shadow:none}
+@media (max-height:560px){.cue,.chip{display:none}}
+
+/* sections */
+main{position:relative;z-index:1}
+.sec{position:relative;padding:clamp(72px,10vw,130px) clamp(16px,4vw,48px)}
+.wrap{max-width:1180px;margin:0 auto}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:22px;height:1px;background:var(--accent)}
+h2{font-size:clamp(28px,3.6vw,46px);max-width:18ch}
+.lede{color:var(--text-secondary);max-width:52ch;margin-top:14px;font-size:clamp(16px,1.2vw,19px)}
+.iso{width:100%;height:60px;color:var(--line-strong);margin-bottom:34px}
+.iso path{fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round}
+.draw{stroke-dasharray:var(--len,2000);stroke-dashoffset:var(--len,2000);transition:stroke-dashoffset 1.6s var(--ease)}
+.in .draw{stroke-dashoffset:0}
+.rv .part{opacity:0;transform:translateY(18px);transition:opacity .8s var(--ease),transform .9s var(--ease-out)}
+.rv.in .part{opacity:1;transform:none}
+.rv.in .part:nth-child(2){transition-delay:.09s}.rv.in .part:nth-child(3){transition-delay:.18s}.rv.in .part:nth-child(4){transition-delay:.27s}.rv.in .part:nth-child(5){transition-delay:.36s}.rv.in .part:nth-child(6){transition-delay:.45s}.rv.in .part:nth-child(7){transition-delay:.54s}
+.rv.settled .part:nth-child(n){transition-delay:0s!important}
+
+/* live strip */
+.live{background:linear-gradient(180deg,rgba(18,35,44,0),rgba(18,35,44,.55))}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));gap:14px;padding:8px 0 18px;margin-top:38px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px 20px 18px;position:relative;overflow:hidden;transition:border-color .3s var(--ease),transform .4s var(--ease-out)}
+.card:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+.card .city{font-family:var(--display);font-weight:500;font-size:15px;letter-spacing:.01em}
+.card .temp{font-family:var(--display);font-weight:700;font-size:44px;line-height:1;margin:14px 0 6px}
+.card .temp small{font-size:18px;font-weight:500;color:var(--text-secondary)}
+.card .cond{color:var(--text-secondary);font-size:14px;min-height:1.6em}
+.card .meta{display:grid;gap:5px;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--text-secondary)}
+.card .meta span{display:flex;justify-content:space-between;align-items:baseline;gap:8px;white-space:nowrap}
+.card .meta b{color:var(--text-primary);font-weight:400;font-size:13px}
+.card .bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--rain),transparent);transform-origin:left;transform:scaleX(var(--rh,0));transition:transform 1.2s var(--ease-out)}
+.stamp{font-family:var(--mono);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;margin-top:6px;letter-spacing:.06em}
+.err{color:var(--heat)}
+
+/* how */
+.how .grid{display:grid;grid-template-columns:1fr 1.3fr;gap:clamp(28px,6vw,90px);align-items:start;margin-top:44px}
+.timeline{position:relative;display:grid;gap:34px;padding-left:64px}
+.spine{position:absolute;left:19px;top:8px;width:2px;height:calc(100% - 16px)}
+.spine path{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;opacity:.7}
+.timeline>.glow{position:absolute;left:10px;top:8px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,var(--accent),transparent 70%);opacity:0;animation:ride 7s var(--ease) infinite -2s;pointer-events:none}
+.timeline.in>.glow{opacity:.8}
+@keyframes ride{0%{transform:translateY(0);opacity:0}10%{opacity:.8}90%{opacity:.8}100%{transform:translateY(var(--ride,400px));opacity:0}}
+.step{position:relative}
+.step .ico{position:absolute;left:-64px;top:-2px;width:40px;height:40px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line);display:grid;place-items:center;color:var(--accent)}
+.step .ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.step h3{font-size:24px;margin-bottom:8px}
+.step p{color:var(--text-secondary);max-width:44ch}
+.sticky{position:sticky;top:110px}
+.sticky h2{margin-bottom:8px}
+
+/* run */
+.run{text-align:center}
+.run h2,.run .lede{margin-left:auto;margin-right:auto}
+.run .kicker{justify-content:center}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:34px 0 30px}
+.chipbtn{background:transparent;border:1px solid var(--line-strong);color:var(--text-secondary);padding:9px 16px;border-radius:999px;cursor:pointer;font-size:14px;transition:border-color .25s var(--ease),color .25s var(--ease),background .25s var(--ease)}
+.chipbtn[aria-pressed="true"]{background:var(--accent-muted);border-color:var(--accent);color:var(--text-primary)}
+.chipbtn:hover{border-color:var(--accent)}
+.hold{position:relative;width:168px;height:168px;border-radius:50%;margin:0 auto;background:var(--panel);border:1px solid var(--line);color:var(--text-primary);cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;display:grid;place-items:center;font-family:var(--display);font-weight:500;font-size:15px;letter-spacing:.06em;transition:transform .35s var(--ease-out),border-color .3s var(--ease)}
+.hold:hover{border-color:var(--line-strong)}
+.hold:active{transform:scale(.97)}
+.hold svg{position:absolute;inset:-2px;width:calc(100% + 4px);height:calc(100% + 4px);transform:rotate(-90deg)}
+.hold circle{fill:none;stroke-width:3}
+.hold .track{stroke:var(--line)}
+.hold .fill{stroke:var(--accent);stroke-dasharray:520;stroke-dashoffset:calc(520*(1 - var(--hold,0)))}
+.hold .breath{position:absolute;inset:-14px;border-radius:50%;border:1px solid var(--accent);opacity:0;animation:breath 5s var(--ease) infinite -2.4s}
+@keyframes breath{0%,100%{transform:scale(.92);opacity:0}50%{transform:scale(1.02);opacity:.35}}
+.hold.done{border-color:var(--accent)}
+.hold.done .breath{animation:none;opacity:.45;transform:none}
+.hint{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--text-secondary);margin-top:18px;min-height:1.5em}
+.fc{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin:40px auto 0;max-width:980px}
+.fc .day{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 8px 12px;opacity:.16;transform:translateY(10px);transition:opacity .6s var(--ease),transform .7s var(--ease-out),border-color .4s var(--ease)}
+.fc.lit .day{opacity:1;transform:none;border-color:var(--line-strong)}
+.fc.lit .day:nth-child(2){transition-delay:.08s}.fc.lit .day:nth-child(3){transition-delay:.16s}.fc.lit .day:nth-child(4){transition-delay:.24s}.fc.lit .day:nth-child(5){transition-delay:.32s}.fc.lit .day:nth-child(6){transition-delay:.4s}.fc.lit .day:nth-child(7){transition-delay:.48s}
+.fc.settled .day:nth-child(n){transition-delay:0s!important}
+.fc .d{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text-secondary)}
+.fc .hi{font-family:var(--display);font-weight:700;font-size:22px;margin-top:8px}
+.fc .lo{font-family:var(--mono);font-size:12px;color:var(--text-secondary)}
+.fc .rn{font-size:12px;color:var(--rain);margin-top:6px;min-height:1.5em}
+.note{font-family:var(--mono);font-size:12px;color:var(--text-secondary);margin-top:18px;letter-spacing:.04em;max-width:78ch;margin-left:auto;margin-right:auto}
+.ours{margin:22px auto 0;max-width:720px;padding:16px 20px;border-left:3px solid var(--accent);background:var(--panel);border-radius:0 14px 14px 0;text-align:left;font-size:16px;line-height:1.5}
+.ours strong{font-family:var(--display);font-size:22px;color:var(--accent);margin:0 4px}
+@media (max-width:820px){.fc{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:480px){.fc{grid-template-columns:repeat(2,1fr)}}
+
+/* on air */
+.report .dateline{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--text-secondary);margin-top:12px}
+.air{display:grid;grid-template-columns:56px 1fr;gap:22px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:clamp(20px,3vw,32px);margin-top:30px}
+.air p{font-size:clamp(17px,1.35vw,21px);line-height:1.7;max-width:70ch}
+.mic{display:flex;align-items:flex-end;gap:4px;height:40px;padding-top:6px}
+.mic span{width:6px;height:30%;border-radius:3px;background:var(--accent);opacity:.75;transform-origin:bottom;animation:vu 2.4s var(--ease) infinite}
+.mic span:nth-child(2){animation-delay:-.4s}.mic span:nth-child(3){animation-delay:-.9s}.mic span:nth-child(4){animation-delay:-1.3s}.mic span:nth-child(5){animation-delay:-1.9s}
+@keyframes vu{0%,100%{transform:scaleY(.35)}30%{transform:scaleY(1)}60%{transform:scaleY(.55)}}
+.rgrid{display:grid;grid-template-columns:1.4fr 1fr;gap:22px;margin-top:22px;align-items:start}
+.ch{border-top:1px solid var(--line-strong);padding:16px 0 14px}
+.ch b{display:block;font-family:var(--display);font-weight:500;font-size:15px;margin-bottom:4px}
+.ch .what{margin-bottom:4px}
+.ch .why{color:var(--text-secondary);font-size:15px}
+.nextbox{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line-strong);border-radius:22px;padding:26px;position:relative;overflow:hidden}
+.nextbox::before{content:"";position:absolute;right:-30%;top:-40%;width:80%;height:120%;background:radial-gradient(ellipse,rgba(103,232,197,.16),transparent 60%);pointer-events:none}
+.nextbox .k{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--accent);margin-bottom:12px}
+.nextbox .route{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.2vw,30px);line-height:1.15}
+.nextbox .route small{display:block;font-family:var(--mono);font-weight:400;font-size:12px;letter-spacing:.1em;color:var(--text-secondary);margin:8px 0 2px}
+.nextbox .eta{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 14px}
+.tag{font-family:var(--mono);font-size:12px;letter-spacing:.08em;padding:6px 10px;border-radius:999px;border:1px solid var(--line-strong);color:var(--text-primary)}
+.tag.hi{border-color:var(--accent);color:var(--accent)}.tag.mid{border-color:var(--heat);color:var(--heat)}.tag.lo{border-color:var(--line-strong);color:var(--text-secondary)}
+.nextbox p{color:var(--text-secondary);font-size:15px}
+.watch{list-style:none;margin-top:18px;display:grid;gap:8px;font-size:15px;color:var(--text-secondary)}
+.watch li::before{content:"·";color:var(--accent);margin-right:8px}
+@media (max-width:900px){.rgrid{grid-template-columns:1fr}.air{grid-template-columns:1fr}.mic{height:28px}}
+
+/* faq */
+.faq .list{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,4vw,48px) clamp(28px,5vw,72px);margin-top:44px}
+.qa{border-top:1px solid var(--line-strong);padding-top:20px;position:relative}
+.qa::after{content:"";position:absolute;left:0;top:-1px;height:1px;width:56px;background:var(--accent);opacity:.9;animation:shimmer 7s var(--ease) infinite -3s}
+@keyframes shimmer{0%,100%{width:56px;opacity:.9}50%{width:120px;opacity:.5}}
+.qa h3{font-size:19px;margin-bottom:10px;font-family:var(--body);font-weight:600}
+.qa p{color:var(--text-secondary);max-width:46ch}
+
+/* cta */
+.cta .panel{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(28px,5vw,72px);background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:clamp(28px,4vw,56px);position:relative;overflow:hidden}
+.cta .panel::before{content:"";position:absolute;right:-20%;top:-40%;width:60%;height:140%;background:radial-gradient(ellipse,rgba(103,232,197,.14),transparent 60%);pointer-events:none}
+.form{display:grid;gap:14px;position:relative}
+.field{display:grid;gap:6px}
+.field label{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--text-secondary)}
+.field input{background:var(--canvas);border:1px solid var(--line-strong);border-radius:12px;padding:13px 14px;color:var(--text-primary);transition:border-color .25s var(--ease)}
+.field input::placeholder{color:rgba(169,188,192,.55)}
+.field input:focus{border-color:var(--accent);outline:none}
+.form .btn{justify-self:start;margin-top:6px}
+.micro{font-family:var(--mono);font-size:12px;color:var(--text-secondary);letter-spacing:.04em}
+.ok{display:none;background:var(--canvas);border:1px solid var(--accent);border-radius:16px;padding:22px;align-self:start}
+.ok.show{display:block}
+.ok h3{font-size:20px;margin-bottom:8px}
+.ok p{color:var(--text-secondary)}
+
+/* the bot: ask the reporter */
+.botfab{position:fixed;right:22px;bottom:22px;z-index:60;display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:999px;background:var(--accent);color:var(--canvas);border:0;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 12px 34px rgba(103,232,197,.28);transition:transform .3s var(--ease-out),box-shadow .3s var(--ease)}
+.botfab:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(103,232,197,.36)}
+.botfab .mic{height:16px;padding:0}
+.botfab .mic span{background:var(--canvas);width:3px;opacity:.9}
+.bot{position:fixed;right:22px;bottom:22px;z-index:61;width:min(400px,calc(100vw - 44px));max-height:min(640px,calc(100vh - 44px));display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line-strong);border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,.5);overflow:hidden}
+.bot header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+.bot header b{font-family:var(--display);font-weight:500;font-size:14px}
+.bot header small{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-secondary);margin-top:3px}
+.bot .x{background:transparent;border:0;color:var(--text-secondary);cursor:pointer;font-size:24px;line-height:1;padding:2px 8px;border-radius:8px}
+.bot .x:hover{color:var(--text-primary)}
+.botlog{flex:1 1 auto;min-height:0;overflow-y:auto;padding:14px 16px;display:grid;gap:10px;align-content:start;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+.msg{max-width:90%;padding:10px 14px;border-radius:14px;font-size:15px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.user{justify-self:end;background:var(--accent-muted);border:1px solid rgba(103,232,197,.35);border-bottom-right-radius:4px}
+.msg.reply{justify-self:start;background:var(--canvas);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.reply:empty::after{content:"…";color:var(--text-secondary)}
+.botchips{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 10px}
+.botchips .chipbtn{font-size:13px;padding:7px 12px}
+.botstatus{font-family:var(--mono);font-size:11px;color:var(--text-secondary);padding:0 16px 8px;min-height:1.4em;letter-spacing:.06em}
+.botform{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+.botform input{flex:1;min-width:0;background:var(--canvas);border:1px solid var(--line-strong);border-radius:12px;padding:11px 12px;color:var(--text-primary)}
+.botform input:focus{border-color:var(--accent);outline:none}
+.botform .btn[disabled]{opacity:.5;cursor:wait}
+.bot[hidden],.botfab[hidden],.ours[hidden],.report[hidden]{display:none}
+@media (max-width:720px){.bot{right:10px;bottom:10px;width:calc(100vw - 20px);max-height:calc(100vh - 20px);max-height:calc(100svh - 20px)}.botfab{right:14px;bottom:14px}}
+
+/* footer */
+footer{position:relative;z-index:1;padding:40px clamp(16px,4vw,48px) 48px;border-top:1px solid var(--line);color:var(--text-secondary);font-size:14px}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:end}
+footer p+p{margin-top:6px}
+footer ul{list-style:none;display:flex;gap:22px;justify-content:flex-end;flex-wrap:wrap}
+footer a{text-decoration:none;color:var(--text-secondary);transition:color .25s var(--ease)}
+footer a:hover{color:var(--text-primary)}
+
+/* responsive */
+@media (max-width:900px){.how .grid{grid-template-columns:1fr}.sticky{position:static}.cta .panel{grid-template-columns:1fr}.faq .list{grid-template-columns:1fr}footer .wrap{grid-template-columns:1fr}footer ul{justify-content:flex-start}}
+@media (pointer:coarse){.btn,.chipbtn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}.nav ul a{display:inline-flex;min-height:44px;align-items:center}}
+
+/* the five static-hero gates, identical to the JS list */
+@media (max-width: 720px), (orientation: portrait) and (max-width: 1024px), (orientation: portrait) and (pointer: coarse), (orientation: landscape) and (pointer: coarse) and (max-height: 560px), (prefers-reduced-motion: reduce){
+  .hero{height:auto}
+  .stage{position:relative;height:100vh;height:100svh;min-height:600px}
+  .bands,.cue,.chip{display:none}
+  .static-copy{display:flex}
+}
+
+/* reduced motion, honored completely and mirrored by html.rm for live flips */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;transition-delay:0s!important}
+  body{opacity:1}
+  .rv .part{opacity:1;transform:none}
+  .draw{stroke-dashoffset:0!important}
+  .fc .day{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+}
+html.rm *,html.rm *::before,html.rm *::after{animation:none!important;transition:none!important;transition-delay:0s!important}
+html.rm body{opacity:1}
+html.rm .rv .part{opacity:1;transform:none}
+html.rm .draw{stroke-dashoffset:0!important}
+html.rm .fc .day{opacity:1;transform:none}
+body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused!important}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="env" aria-hidden="true"><div class="glow g1"></div><div class="glow g2"></div><div class="grain"></div></div>
+
+<nav class="nav" aria-label="Main">
+  <a class="brand" href="#top" aria-label="AI Climate Prediction, home">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#12232c"/><path d="M8 24c10-10 22 10 32 0s12-6 16 0M8 34c10-10 22 10 32 0s12-6 16 0M8 44c10-10 22 10 32 0s12-6 16 0" fill="none" stroke="#67e8c5" stroke-width="3.5" stroke-linecap="round"/></svg>
+    AI Climate Prediction
+  </a>
+  <ul>
+    <li><a href="#live">Live</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#run">Try it</a></li>
+    <li><a href="#faq">Answers</a></li>
+  </ul>
+  <a class="btn primary small" href="#early">Early access</a>
+</nav>
+
+<header class="hero" id="top">
+  <div class="stage">
+    <canvas id="sky" aria-hidden="true" tabindex="-1"></canvas>
+    <div class="scrim" aria-hidden="true"></div>
+    <div class="bands">
+      <div class="band" data-a="0" data-b="0.20" data-fx="blur" data-ramp="0.05">
+        <span class="sr">The sky already told you.</span>
+        <div class="stack" aria-hidden="true"><span class="line soft">The sky already told you.</span><span class="line sharp">The sky already told you.</span></div>
+      </div>
+      <div class="band" data-a="0.24" data-b="0.46" data-fx="drift">
+        <span class="sr">Clear skies, said the app. Then the street flooded.</span>
+        <span class="line split" aria-hidden="true">Clear skies, said the app.</span>
+        <span class="line split" aria-hidden="true" data-th="0.28">Then the street flooded.</span>
+      </div>
+      <div class="band" data-a="0.50" data-b="0.72" data-fx="grid" data-spread="0.5">
+        <span class="sr">Any Indian city. Every 15 minutes. History back to 1940.</span>
+        <span class="line split" aria-hidden="true">Any Indian city. Every 15 minutes.</span>
+        <span class="line split" aria-hidden="true" data-th="0.3">History back to 1940.</span>
+      </div>
+      <div class="band" data-a="0.78" data-b="1" data-fx="rise" data-ramp="0.09">
+        <h1><span class="sr">Tomorrow, read today.</span><span class="split" aria-hidden="true">Tomorrow, read today.</span></h1>
+        <p class="sub">AI Climate Prediction turns live readings into next-day forecasts you can check against the sky.</p>
+        <div class="cta-row"><a class="btn primary" href="#live">See live readings</a><a class="btn ghost" href="#how">How it works</a></div>
+      </div>
+    </div>
+    <div class="static-copy">
+      <h1>Tomorrow, read today.</h1>
+      <p>AI Climate Prediction turns live readings into next-day forecasts you can check against the sky.</p>
+      <div class="cta-row"><a class="btn primary" href="#live">See live readings</a><a class="btn ghost" href="#how">How it works</a></div>
+    </div>
+    <div class="chip" aria-hidden="true"><span class="dot"></span>LIVE FEED · OPEN-METEO · 15 MIN</div>
+    <div class="cue" aria-hidden="true">SCROLL<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6l5 5 5-5"/></svg></div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <section class="sec live rv" id="live" aria-labelledby="live-h">
+    <div class="wrap">
+      <svg class="iso part" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path class="draw" d="M0 32C120 2 240 58 380 30S620 2 760 32 980 60 1200 26"/></svg>
+      <p class="kicker part">Live now</p>
+      <h2 id="live-h" class="part">Six cities, read this minute.</h2>
+      <p class="lede part">Straight from the feed our model learns from. Refreshed every 15 minutes. No key, no login.</p>
+      <div class="strip part" id="strip" aria-live="polite"></div>
+      <p class="stamp part"><span class="dot" aria-hidden="true"></span><span id="stamp">Reading the sky…</span></p>
+    </div>
+  </section>
+
+  <section class="sec how" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="grid">
+        <div class="sticky rv">
+          <p class="kicker part">The method</p>
+          <h2 id="how-h" class="part">Read. Learn. Forecast.</h2>
+          <p class="lede part">Weather apps start from a 12 km grid box. We start from the reading at your point on the map, and we show it to you.</p>
+        </div>
+        <div class="timeline rv" id="timeline">
+          <svg class="spine" viewBox="0 0 2 100" preserveAspectRatio="none" aria-hidden="true"><path class="draw" d="M1 0V100"/></svg>
+          <div class="glow" aria-hidden="true"></div>
+          <div class="step part">
+            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 0116 0"/><path d="M12 16l4-5"/><circle cx="12" cy="16" r="1.4"/></svg></div>
+            <h3>Read.</h3>
+            <p>Live conditions and forty years of daily history for the exact point you care about. Not a 12 km grid box.</p>
+          </div>
+          <div class="step part">
+            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21V11"/><path d="M12 11L6 5"/><path d="M12 11l6-6"/><path d="M6 5l-2 4M6 5l4 1M18 5l2 4M18 5l-4 1"/></svg></div>
+            <h3>Learn.</h3>
+            <p>A model trained on what actually happened the next day, at that point, in that season.</p>
+          </div>
+          <div class="step part">
+            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="4"/><path d="M9 4v2M9 18v2M1 12h2M15 12h2M3.3 6.3l1.4 1.4M3.3 17.7l1.4-1.4"/><path d="M15 12h7m0 0l-3-3m3 3l-3 3"/></svg></div>
+            <h3>Forecast.</h3>
+            <p>Tomorrow's temperature, shown with the reading it came from, so you can check it against the sky.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec run rv" id="run" aria-labelledby="run-h">
+    <div class="wrap">
+      <svg class="iso part" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path class="draw" d="M0 28C160 60 300 4 460 30s300 30 440 0 200-8 300 4"/></svg>
+      <p class="kicker part">Try it</p>
+      <h2 id="run-h" class="part">Hold to pull tomorrow.</h2>
+      <p class="lede part">Pick a city. Press and hold. Seven days arrive from the live feed our model trains on.</p>
+      <div class="chips part" id="chips" role="group" aria-label="Choose a city"></div>
+      <button class="hold part" id="hold" type="button" aria-describedby="hint">
+        <span class="breath" aria-hidden="true"></span>
+        <svg viewBox="0 0 172 172" aria-hidden="true"><circle class="track" cx="86" cy="86" r="83"/><circle class="fill" cx="86" cy="86" r="83"/></svg>
+        <span id="holdlabel">HOLD</span>
+      </button>
+      <p class="hint part" id="hint">PRESS AND HOLD UNTIL THE RING CLOSES</p>
+      <div class="fc part" id="fc" aria-live="polite"></div>
+      <p class="ours" id="ours" hidden></p>
+      <p class="note part" id="runnote">Live forecast feed from Open-Meteo. The project's own next-day estimate plugs in here.</p>
+    </div>
+  </section>
+
+  <section class="sec report rv" id="report" aria-labelledby="report-h" hidden>
+    <div class="wrap">
+      <svg class="iso part" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path class="draw" d="M0 34C140 6 260 6 400 34s280 26 420-4 260-22 380 2"/></svg>
+      <p class="kicker part">On air</p>
+      <h2 id="report-h" class="part"></h2>
+      <p class="dateline part" id="dateline"></p>
+      <div class="air part">
+        <div class="mic" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <p id="onair"></p>
+      </div>
+      <div class="rgrid">
+        <div class="part" id="changes"></div>
+        <aside class="nextbox part" id="nextbox" aria-label="Where the weather goes next"></aside>
+      </div>
+      <p class="note part" id="rsource"></p>
+    </div>
+  </section>
+
+  <section class="sec faq rv" id="faq" aria-labelledby="faq-h">
+    <div class="wrap">
+      <p class="kicker part">Straight answers</p>
+      <h2 id="faq-h" class="part">What people ask first.</h2>
+      <div class="list">
+        <div class="qa part"><h3>Is this real data?</h3><p>Yes. Every number on this page comes from Open-Meteo's public feed, which needs no key and refreshes every 15 minutes. India's official station network, 1,729 IMD stations, is the next source once access is granted.</p></div>
+        <div class="qa part"><h3>How accurate is it?</h3><p>We publish the average error on the last 365 days the model never saw, right under the forecast, next to the plain carry-today-forward baseline. A number you cannot check is not a forecast.</p></div>
+        <div class="qa part"><h3>Does it work for my town?</h3><p>Any point in India with a latitude and longitude. No grid box, no nearest big city.</p></div>
+        <div class="qa part"><h3>Can I use it in my own app?</h3><p>Yes. The code is open source under the MIT license. Run it, fork it, ship it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec cta rv" id="early" aria-labelledby="cta-h">
+    <div class="wrap">
+      <div class="panel">
+        <div>
+          <p class="kicker part">Early access</p>
+          <h2 id="cta-h" class="part">Get the first forecasts.</h2>
+          <p class="lede part">Leave your city and email. When next-day forecasts open for your area, you hear first.</p>
+        </div>
+        <form class="form part" id="form" novalidate>
+          <div class="field"><label for="f-name">Your name</label><input id="f-name" name="name" type="text" autocomplete="name" placeholder="Asha Verma" required></div>
+          <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" placeholder="asha@example.com" required></div>
+          <div class="field"><label for="f-city">City</label><input id="f-city" name="city" type="text" autocomplete="address-level2" placeholder="Pune" required></div>
+          <button class="btn primary" type="submit">Send me the first forecast</button>
+          <p class="micro">Demo form. Nothing is sent yet.</p>
+        </form>
+        <div class="ok part" id="ok" role="status"><h3>Noted.</h3><p id="oktext"></p></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<button class="botfab" id="botfab" type="button" hidden aria-haspopup="dialog" aria-controls="bot"><span class="mic" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>Ask the reporter</button>
+<section class="bot" id="bot" role="dialog" aria-labelledby="bot-h" hidden>
+  <header><div><b id="bot-h">Ask the reporter</b><small>LOCAL MODEL · RUNS ON THIS MACHINE</small></div><button class="x" id="botclose" type="button" aria-label="Close the chat">×</button></header>
+  <div class="botlog" id="botlog" aria-live="polite"></div>
+  <div class="botchips" id="botchips"><button class="chipbtn" type="button">Why is Kolkata cooler today?</button><button class="chipbtn" type="button">Where is Mumbai's rain heading?</button><button class="chipbtn" type="button">Will Pune be hotter tomorrow?</button></div>
+  <p class="botstatus" id="botstatus"></p>
+  <form class="botform" id="botform"><label class="sr" for="botinput">Your question</label><input id="botinput" type="text" autocomplete="off" placeholder="Ask about any city on the page…" maxlength="300"><button class="btn primary small" type="submit" id="botsend">Ask</button></form>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <p><strong>AI Climate Prediction.</strong> Open source under the MIT license.</p>
+      <p>Weather data: Open-Meteo. The hero is drawn live on your screen. No photos or stock footage were used.</p>
+    </div>
+    <ul>
+      <li><a href="https://github.com/jmrashed/ai-climate-prediction" rel="noopener">GitHub</a></li>
+      <li><a href="https://open-meteo.com/" rel="noopener">Data source</a></li>
+      <li><a href="#top">Back to top</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(() => {
+'use strict';
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const smoothstep = (p, e0, e1) => { const t = clamp((p - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
+const ease = t => 1 - Math.pow(1 - t, 3);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function rng(seed){ let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+
+/* ---------- text splitting (once, seeded) ---------- */
+const rand = rng(20260922);
+document.querySelectorAll('.band .split').forEach((el, ei) => {
+  const band = el.closest('.band'), fx = band.dataset.fx, spread = +(band.dataset.spread || 0.55);
+  const th0 = +(el.dataset.th || 0);
+  const text = el.textContent; el.textContent = '';
+  const words = text.split(' ');
+  const total = text.length; let ci = 0;
+  words.forEach((word, wi) => {
+    const w = document.createElement('span'); w.className = 'w';
+    if (fx === 'grid') {
+      [...word].forEach(ch => { const c = document.createElement('span'); c.className = 'c'; c.textContent = ch;
+        c.style.setProperty('--th', (th0 + (ci / total) * spread + rand() * 0.06).toFixed(3));
+        c.style.setProperty('--jx', ((rand() - 0.5) * 90).toFixed(1) + 'px'); ci++; w.appendChild(c); });
+      if (wi < words.length - 1) { const sp = document.createElement('span'); sp.className = 'c'; sp.textContent = ' '; w.appendChild(sp); ci++; }
+    } else {
+      w.textContent = word + (wi < words.length - 1 ? ' ' : '');
+      w.style.setProperty('--th', (th0 + (wi / Math.max(1, words.length)) * 0.5 + rand() * 0.05).toFixed(3));
+    }
+    el.appendChild(w);
+  });
+});
+
+/* ---------- hero: procedural isobar sky ---------- */
+const hero = document.querySelector('.hero'), stage = document.querySelector('.stage');
+const canvas = document.getElementById('sky'), ctx = canvas.getContext('2d', { alpha: false });
+let cw = 0, ch = 0, dpr = 1;
+function sizeCanvas(){
+  dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  cw = stage.clientWidth; ch = stage.clientHeight;
+  canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
+}
+const mix = (a, b, t) => { const c = x => parseInt(x, 16); const r = Math.round(c(a.slice(1,3)) + (c(b.slice(1,3)) - c(a.slice(1,3))) * t), g = Math.round(c(a.slice(3,5)) + (c(b.slice(3,5)) - c(a.slice(3,5))) * t), bl = Math.round(c(a.slice(5,7)) + (c(b.slice(5,7)) - c(a.slice(5,7))) * t); return `rgb(${r},${g},${bl})`; };
+let lastDrawP = -1, lastDrawT = 0;
+function draw(p, now, force){
+  if (!force && Math.abs(p - lastDrawP) < 0.0008 && now - lastDrawT < 40) return;
+  lastDrawP = p; lastDrawT = now;
+  const w = cw, h = ch, t = now * 0.00022;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const sky = ctx.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, mix('#07121a', '#0a1e28', p)); sky.addColorStop(1, mix('#0b161d', '#0f2733', p));
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+  const cx = w * 0.30, cy = h * 0.52, R = Math.min(w, h) * (0.30 + 0.12 * p);
+  const inten = 0.16 + 0.44 * ease(p);
+  const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  rg.addColorStop(0, `rgba(103,232,197,${inten.toFixed(3)})`); rg.addColorStop(0.45, `rgba(103,232,197,${(inten * 0.32).toFixed(3)})`); rg.addColorStop(1, 'rgba(103,232,197,0)');
+  ctx.fillStyle = rg; ctx.fillRect(0, 0, w, h);
+  const rc = Math.exp(-Math.pow((p - 0.35) / 0.11, 2));
+  if (rc > 0.02) { const rx = w * 0.70, ry = h * 0.66, rr = Math.min(w, h) * 0.34;
+    const bg = ctx.createRadialGradient(rx, ry, 0, rx, ry, rr);
+    bg.addColorStop(0, `rgba(111,180,255,${(0.30 * rc).toFixed(3)})`); bg.addColorStop(1, 'rgba(111,180,255,0)');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h); }
+  const N = 26, amp = 26 * (1 - 0.72 * p), drift = 1 - 0.55 * p;
+  ctx.lineWidth = 1;
+  for (let i = 0; i < N; i++) {
+    const y0 = h * (i + 0.5) / N;
+    const near = Math.exp(-Math.pow((y0 - cy) / (h * 0.36), 2));
+    ctx.beginPath();
+    for (let x = 0; x <= w + 10; x += 10) {
+      const lane = 1 - 0.55 * clamp((x - w * 0.48) / (w * 0.52), 0, 1);
+      const dx = (x - cx) / R, dy = (y0 - cy) / R, d2 = dx * dx + dy * dy;
+      const bulge = -Math.sign(y0 - cy || 1) * Math.exp(-d2 * 1.5) * R * 0.42 * (0.55 + 0.45 * p);
+      const rain = rc * 18 * Math.exp(-Math.pow((x - w * 0.70) / (w * 0.16), 2)) * Math.sin(x * 0.03 + t * 3 + i);
+      const y = y0 + bulge + lane * (amp * (Math.sin(x * 0.0042 + t * 1.3 + i * 0.55) + 0.5 * Math.sin(x * 0.011 - t * 0.9 + i * 1.3)) * drift + rain);
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = `rgba(140,236,210,${(0.05 + 0.24 * near).toFixed(3)})`;
+    ctx.stroke();
+  }
+}
+
+/* ---------- bands ---------- */
+const bands = [...document.querySelectorAll('.band')].map(el => ({ el, a: +el.dataset.a, b: +el.dataset.b, ramp: el.dataset.ramp ? +el.dataset.ramp : null, op: -1, k: -1 }));
+let loadK = 0, loadStart = 0;
+function updateCaptions(p, now){
+  bands.forEach((band, i) => {
+    const { a, b } = band, f = Math.min(0.02, (b - a) / 3);
+    let op = smoothstep(p, a, a + f) * (1 - smoothstep(p, b - f, b));
+    if (i === 0) op = 1 - smoothstep(p, b - f, b);
+    if (i === bands.length - 1) op = smoothstep(p, a, a + f);
+    let k = clamp((p - a) / (band.ramp || Math.min(0.025, (b - a) * 0.35)), 0, 1);
+    if (i === 0) k = Math.max(k, loadK);
+    if (Math.abs(op - band.op) > 0.01) { band.op = op; band.el.style.opacity = op.toFixed(3); band.el.classList.toggle('on', op > 0.01); }
+    if (Math.abs(k - band.k) > 0.008) { band.k = k; band.el.style.setProperty('--k', k.toFixed(3)); }
+  });
+}
+function heroProgress(){ const r = hero.getBoundingClientRect(), range = hero.offsetHeight - window.innerHeight; return range > 0 ? clamp(-r.top / range, 0, 1) : 1; }
+
+/* ---------- drive loop (rests when converged and off screen) ---------- */
+let target = 0, shown = 0, rafId = null, lastTick = 0, heroOnScreen = true, scrubOn = false;
+function tick(now){
+  const dt = Math.min(100, now - (lastTick || now)); lastTick = now;
+  if (loadK < 1) loadK = clamp((now - loadStart) / 1300, 0, 1);
+  shown += (target - shown) * (1 - Math.pow(1 - 0.16, dt / 16.667));
+  const conv = Math.abs(target - shown) < 0.0005;
+  if (conv) shown = target;
+  draw(shown, now, false); updateCaptions(shown, now);
+  if (!heroOnScreen && conv && loadK >= 1) { rafId = null; lastTick = 0; return; }
+  rafId = requestAnimationFrame(tick);
+}
+function onScroll(){ target = heroProgress(); if (rafId === null && heroOnScreen) rafId = requestAnimationFrame(tick); }
+new IntersectionObserver(([e]) => { heroOnScreen = e.isIntersecting; if (heroOnScreen && scrubOn && rafId === null) rafId = requestAnimationFrame(tick); }, { threshold: 0 }).observe(stage);
+
+/* ---------- the five gates, identical to the CSS list ---------- */
+const GATES = [
+  '(max-width: 720px)',
+  '(orientation: portrait) and (max-width: 1024px)',
+  '(orientation: portrait) and (pointer: coarse)',
+  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
+  '(prefers-reduced-motion: reduce)'
+];
+let inited = false;
+function initHeroOnce(){ if (inited) return; inited = true; sizeCanvas(); loadStart = performance.now(); }
+function enableScrub(){
+  if (scrubOn) return; scrubOn = true;
+  initHeroOnce(); sizeCanvas();
+  addEventListener('scroll', onScroll, { passive: true });
+  bands.forEach(b => { b.op = -1; b.k = -1; });
+  unpinFinalStates();
+  lastDrawP = -1; target = heroProgress(); shown = target;
+  updateCaptions(shown, performance.now()); onScroll();
+  if (rafId === null) rafId = requestAnimationFrame(tick);
+}
+function disableScrub(){
+  if (scrubOn) { scrubOn = false; removeEventListener('scroll', onScroll); }
+  if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+  sizeCanvas(); draw(1, 0, true);                 // the static hero: the resting frame, drawn once
+}
+function applyHeroMode(){ if (GATES.some(q => matchMedia(q).matches)) disableScrub(); else enableScrub(); }
+const MQLS = GATES.map(q => matchMedia(q));
+MQLS.forEach(m => m.addEventListener('change', applyHeroMode));
+const tl = document.getElementById('timeline');
+const sizeRide = () => tl.style.setProperty('--ride', Math.max(0, tl.offsetHeight - 36) + 'px');
+sizeRide();
+let rs; addEventListener('resize', () => { clearTimeout(rs); rs = setTimeout(() => { sizeCanvas(); sizeRide(); lastDrawP = -1; if (scrubOn) onScroll(); else draw(1, 0, true); }, 120); });
+
+/* ---------- reduced motion, live in both directions ---------- */
+function pinToFinalStates(){ document.documentElement.classList.add('rm'); if (holdProg > 0 && !holdDone) completeHold(); }
+function unpinFinalStates(){ document.documentElement.classList.remove('rm'); }
+matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', e => { if (e.matches) pinToFinalStates(); else applyHeroMode(); });
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('rm');
+
+/* ---------- section entrances and self-drawing lines ---------- */
+document.querySelectorAll('.draw').forEach(p => { try { p.style.setProperty('--len', Math.ceil(p.getTotalLength()) + 1); } catch (e) {} });
+const io = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); setTimeout(() => e.target.classList.add('settled'), 1400); io.unobserve(e.target); } }), { threshold: 0.18 });
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+document.addEventListener('visibilitychange', () => document.body.classList.toggle('paused', document.hidden));
+
+/* ---------- live readings ---------- */
+const CITIES = [
+  { n: 'New Delhi', la: 28.61, lo: 77.21 }, { n: 'Mumbai', la: 19.08, lo: 72.88 }, { n: 'Bengaluru', la: 12.97, lo: 77.59 },
+  { n: 'Kolkata', la: 22.57, lo: 88.36 }, { n: 'Chennai', la: 13.08, lo: 80.27 }, { n: 'Hyderabad', la: 17.39, lo: 78.49 }
+];
+const COND = c => c === 0 ? 'Clear sky' : c <= 2 ? 'Partly cloudy' : c === 3 ? 'Overcast' : c <= 48 ? 'Fog' : c <= 57 ? 'Drizzle' : c <= 67 ? 'Rain' : c <= 77 ? 'Snow' : c <= 82 ? 'Showers' : c <= 86 ? 'Snow showers' : 'Thunderstorm';
+const strip = document.getElementById('strip'), stamp = document.getElementById('stamp');
+strip.innerHTML = CITIES.map(c => `<article class="card"><div class="city">${c.n}</div><div class="temp">--<small>°C</small></div><div class="cond">Reading…</div><div class="meta"><span>RH<b>--</b></span><span>RAIN<b>--</b></span><span>WIND<b>--</b></span></div><span class="bar" aria-hidden="true"></span></article>`).join('');
+async function loadLive(){
+  try {
+    const u = `https://api.open-meteo.com/v1/forecast?latitude=${CITIES.map(c => c.la).join(',')}&longitude=${CITIES.map(c => c.lo).join(',')}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code&timezone=Asia%2FKolkata`;
+    const res = await fetch(u); if (!res.ok) throw new Error(res.status);
+    const data = await res.json(); const arr = Array.isArray(data) ? data : [data];
+    [...strip.children].forEach((card, i) => { const d = arr[i] && arr[i].current; if (!d) return;
+      card.querySelector('.temp').innerHTML = `${Math.round(d.temperature_2m)}<small>°C</small>`;
+      card.querySelector('.cond').textContent = COND(d.weather_code);
+      const m = card.querySelectorAll('.meta b'); m[0].textContent = d.relative_humidity_2m + '%'; m[1].textContent = d.precipitation + ' mm'; m[2].textContent = Math.round(d.wind_speed_10m) + ' km/h';
+      card.querySelector('.bar').style.setProperty('--rh', (d.relative_humidity_2m / 100).toFixed(2)); });
+    const t = arr[0] && arr[0].current ? arr[0].current.time.replace('T', ' ') : '';
+    stamp.textContent = `LIVE · ${t} IST · OPEN-METEO`;
+  } catch (e) { stamp.innerHTML = '<span class="err">The live feed did not answer. The readings will return when it does.</span>'; }
+}
+loadLive();
+
+/* ---------- the interactive moment: hold to pull tomorrow ---------- */
+const chips = document.getElementById('chips'), hold = document.getElementById('hold'), fill = hold.querySelector('.fill'), hint = document.getElementById('hint'), fc = document.getElementById('fc'), holdlabel = document.getElementById('holdlabel');
+let city = CITIES[0], holdProg = 0, holding = false, holdRaf = null, holdLast = 0, holdDone = false;
+const ours = document.getElementById('ours');
+let FORECAST = null;   // written by scripts/predict_today.py: the project's own next-day estimate per city
+fetch('assets/forecast.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(f => {
+  if (!f || !f.cities) return; FORECAST = f;
+  document.getElementById('runnote').textContent = `Our model: gradient-boosted trees trained on daily readings for ${f.cities.length} cities, ${f.trained_from.slice(0, 4)} to ${f.trained_through}. On ${f.test_days} city-days it never saw, its average error was ${f.test_mae} °C; carrying today's high forward would have been ${f.persistence_mae} °C.`;
+}).catch(() => {});
+function showOurs(){
+  const est = FORECAST && FORECAST.cities.find(c => c.city === city.n);
+  if (!est) { ours.hidden = true; return; }
+  ours.innerHTML = `<b>Our model says</b> tomorrow's high in ${esc(city.n)} is <strong>${esc(est.model_tomorrow_max)}°C</strong> from today's ${esc(est.today_max)}°C. The feed's own forecast says ${esc(est.feed_tomorrow_max)}°C.`;
+  ours.hidden = false;
+}
+chips.innerHTML = CITIES.map((c, i) => `<button type="button" class="chipbtn" aria-pressed="${i === 0}">${c.n}</button>`).join('');
+chips.addEventListener('click', e => { const b = e.target.closest('.chipbtn'); if (!b) return;
+  [...chips.children].forEach(x => x.setAttribute('aria-pressed', x === b)); city = CITIES[[...chips.children].indexOf(b)];
+  holdDone = false; holdProg = 0; setHold(0); hold.classList.remove('done'); fc.classList.remove('lit', 'settled'); ours.hidden = true; holdlabel.textContent = 'HOLD'; hint.textContent = 'PRESS AND HOLD UNTIL THE RING CLOSES'; });
+function setHold(v){ hold.style.setProperty('--hold', v.toFixed(3)); }
+function holdTick(now){
+  const dt = Math.min(80, now - (holdLast || now)); holdLast = now;
+  holdProg += holding ? dt / 1400 : -dt / 700; holdProg = clamp(holdProg, 0, 1); setHold(holdProg);
+  if (holdProg >= 1 && !holdDone) { completeHold(); return; }
+  if ((holding && holdProg < 1) || (!holding && holdProg > 0)) holdRaf = requestAnimationFrame(holdTick); else { holdRaf = null; holdLast = 0; }
+}
+function startHold(){ if (holdDone) return; holding = true; hint.textContent = 'KEEP HOLDING…'; if (holdRaf === null) holdRaf = requestAnimationFrame(holdTick); }
+function endHold(){ holding = false; if (!holdDone && holdProg > 0) hint.textContent = 'RELEASED EARLY. HOLD A LITTLE LONGER.'; if (holdRaf === null && holdProg > 0) holdRaf = requestAnimationFrame(holdTick); }
+async function completeHold(){
+  holdDone = true; holdProg = 1; setHold(1); holdRaf = null; holdLast = 0; hold.classList.add('done'); holdlabel.textContent = 'READ'; hint.textContent = `PULLING SEVEN DAYS FOR ${city.n.toUpperCase()}…`;
+  try {
+    const u = `https://api.open-meteo.com/v1/forecast?latitude=${city.la}&longitude=${city.lo}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code&timezone=Asia%2FKolkata&forecast_days=7`;
+    const d = (await (await fetch(u)).json()).daily;
+    fc.innerHTML = d.time.map((day, i) => { const dt = new Date(day + 'T00:00:00'); const lab = i === 0 ? 'TODAY' : i === 1 ? 'TOMORROW' : dt.toLocaleDateString('en-IN', { weekday: 'short' }).toUpperCase();
+      return `<div class="day"><div class="d">${lab}</div><div class="hi">${Math.round(d.temperature_2m_max[i])}°</div><div class="lo">${Math.round(d.temperature_2m_min[i])}° low</div><div class="rn">${d.precipitation_sum[i] > 0 ? d.precipitation_sum[i] + ' mm' : COND(d.weather_code[i])}</div></div>`; }).join('');
+    requestAnimationFrame(() => { fc.classList.add('lit'); setTimeout(() => fc.classList.add('settled'), 1400); });
+    showOurs();
+    hint.textContent = `${city.n.toUpperCase()} · NEXT SEVEN DAYS · TAP ANOTHER CITY TO RUN AGAIN`;
+  } catch (e) { hint.textContent = 'THE FEED DID NOT ANSWER. TRY AGAIN IN A MOMENT.'; holdDone = false; holdProg = 0; setHold(0); hold.classList.remove('done'); holdlabel.textContent = 'HOLD'; }
+}
+const rmNow = () => matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('rm');
+hold.addEventListener('pointerdown', e => { e.preventDefault(); hold.setPointerCapture(e.pointerId); if (rmNow()) { if (!holdDone) completeHold(); } else startHold(); });
+hold.addEventListener('pointerup', endHold); hold.addEventListener('pointercancel', endHold); hold.addEventListener('lostpointercapture', endHold);
+hold.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); if (rmNow()) { if (!holdDone) completeHold(); } else startHold(); } });
+hold.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') endHold(); });
+
+/* ---------- the form (JS-only success state, disclosed on the page) ---------- */
+const form = document.getElementById('form'), ok = document.getElementById('ok');
+form.addEventListener('submit', e => { e.preventDefault();
+  const name = form.name.value.trim(), email = form.email.value.trim(), cty = form.city.value.trim();
+  if (!name || !email.includes('@') || !cty) { form.querySelector('.micro').textContent = 'Please fill in your name, a real email, and your city.'; return; }
+  document.getElementById('oktext').textContent = `${cty} is on the list. Check the sky tomorrow, then check us.`;
+  form.hidden = true; ok.classList.add('show'); ok.focus && ok.setAttribute('tabindex', '-1'); ok.focus(); });
+
+/* ---------- on air: the reporter's bulletin, written by scripts/weather_reporter.py ---------- */
+let BULLETIN = null;
+(async () => {
+  try {
+    const r = await fetch('assets/bulletin.json', { cache: 'no-store' }); if (!r.ok) return;
+    const b = await r.json(); BULLETIN = b; const sec = document.getElementById('report');
+    document.getElementById('report-h').textContent = b.headline;
+    document.getElementById('dateline').textContent = (b.dateline || '').toUpperCase();
+    document.getElementById('onair').textContent = b.on_air;
+    document.getElementById('changes').innerHTML = (b.changes || []).map(c => `<div class="ch"><b>${esc(c.city)}</b><div class="what">${esc(c.what_changed)}</div><div class="why">${esc(c.why)}</div></div>`).join('') || '<div class="ch"><div class="why">No notable change since yesterday in the twelve cities read.</div></div>';
+    const n = b.next || {}, conf = n.confidence === 'high' ? 'hi' : n.confidence === 'medium' ? 'mid' : 'lo';
+    document.getElementById('nextbox').innerHTML = `<div class="k">NEXT STOP</div><div class="route">${esc(n.from_city)}<small>THEN</small>${esc(n.to_city)}</div><div class="eta"><span class="tag">ABOUT ${esc(n.eta_hours)} H</span><span class="tag ${conf}">${esc((n.confidence || 'low').toUpperCase())} CONFIDENCE</span></div><p>${esc(n.reason)}</p>` + ((b.watch || []).length ? `<ul class="watch">${b.watch.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
+    const when = b.generated_at ? b.generated_at.replace('T', ' ').slice(0, 16) : '';
+    document.getElementById('rsource').textContent = b.source === 'rules'
+      ? `Rules-only bulletin from the live feed, ${when} IST. Add a model and the reporter takes over.`
+      : (b.source || '').startsWith('local:')
+        ? `Written by a local model (${b.source.slice(6)}) running on this machine, from the live feed at ${when} IST. Numbers come from the readings; causes are the reporter's reading of them.`
+        : `Written by Claude (${b.source}) from the live feed, ${when} IST. Numbers come from the readings; causes are the reporter's reading of them.`;
+    sec.hidden = false;
+    const li = document.createElement('li'); li.innerHTML = '<a href="#report">On air</a>'; document.querySelector('.nav ul').insertBefore(li, document.querySelector('.nav ul li:last-child'));
+  } catch (e) {}
+})();
+
+/* ---------- the bot: a chat with the reporter, answered by the local model through Ollama on this machine ---------- */
+(() => {
+  const OLLAMA = 'http://127.0.0.1:11434', MODEL = 'qwen2.5:7b';
+  const fab = document.getElementById('botfab'), panel = document.getElementById('bot'), log = document.getElementById('botlog'), bform = document.getElementById('botform'), input = document.getElementById('botinput'), send = document.getElementById('botsend'), status = document.getElementById('botstatus');
+  const history = []; let busy = false, opened = false;
+  fetch(OLLAMA + '/api/version').then(r => r.ok ? r.json() : null).then(v => { if (v) fab.hidden = false; }).catch(() => {});
+  function context(){
+    const lines = ['Live readings on the page right now:'];
+    document.querySelectorAll('#strip .card').forEach(c => { const m = c.querySelectorAll('.meta b'); lines.push(`${c.querySelector('.city').textContent}: ${c.querySelector('.temp').textContent.trim()}, ${c.querySelector('.cond').textContent}, humidity ${m[0].textContent}, rain ${m[1].textContent}, wind ${m[2].textContent}`); });
+    if (FORECAST) lines.push('', `Our model's estimate of tomorrow's high (${FORECAST.for_date}), with the public feed's own forecast in brackets:`, ...FORECAST.cities.map(c => `${c.city}: ${c.model_tomorrow_max} C [feed ${c.feed_tomorrow_max} C], today ${c.today_max} C`), `Model error on the held-out year: ${FORECAST.test_mae} C. Carrying today forward: ${FORECAST.persistence_mae} C.`);
+    if (BULLETIN) { const b = BULLETIN; lines.push('', `Today's bulletin (${b.dateline}): ${b.headline}`, b.on_air, ...(b.changes || []).map(c => `${c.city}: ${c.what_changed} Why: ${c.why}`), `Next: ${b.next.system} moves from ${b.next.from_city} to ${b.next.to_city} in about ${b.next.eta_hours} h, ${b.next.confidence} confidence. ${b.next.reason}`); }
+    return lines.join('\n');
+  }
+  const SYSTEM = () => `You are the on-air weather correspondent for AI Climate Prediction, answering a viewer's questions in a chat. Use only the readings, estimates and bulletin below. Answer in two to five short sentences of plain broadcast English and cite the numbers you rely on. If the data cannot answer the question, say so plainly and say what would be needed. Times are IST. No percentages for confidence.\n\n${context()}`;
+  function add(role, text){ const el = document.createElement('div'); el.className = 'msg ' + role; el.textContent = text; log.appendChild(el); log.scrollTop = log.scrollHeight; return el; }
+  function open(){ panel.hidden = false; fab.hidden = true; if (!opened) { opened = true; add('reply', 'Ask me why the weather is doing what it is doing, or where it goes next. I only know the readings on this page.'); } input.focus(); }
+  function close(){ panel.hidden = true; fab.hidden = false; fab.focus(); }
+  fab.addEventListener('click', open); document.getElementById('botclose').addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) close(); });
+  document.getElementById('botchips').addEventListener('click', e => { const b = e.target.closest('.chipbtn'); if (b) ask(b.textContent); });
+  bform.addEventListener('submit', e => { e.preventDefault(); const q = input.value.trim(); if (q) ask(q); });
+  async function ask(q){
+    if (busy) return; busy = true; send.disabled = true; input.value = '';
+    add('user', q); const el = add('reply', ''); history.push({ role: 'user', content: q }); status.textContent = 'READING THE FEED…';
+    try {
+      const res = await fetch(OLLAMA + '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: MODEL, stream: true, options: { temperature: 0.3, num_ctx: 8192 }, messages: [{ role: 'system', content: SYSTEM() }, ...history.slice(-8)] }) });
+      if (!res.ok) throw new Error(String(res.status));
+      const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '', text = '';
+      for (;;) {
+        const { done, value } = await reader.read(); if (done) break;
+        buf += dec.decode(value, { stream: true }); let i;
+        while ((i = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1); if (!line) continue;
+          const j = JSON.parse(line); if (j.message && j.message.content) { text += j.message.content; el.textContent = text; log.scrollTop = log.scrollHeight; status.textContent = ''; } }
+      }
+      history.push({ role: 'assistant', content: text });
+    } catch (e) { history.pop(); el.textContent = e.message === '404' ? `The model is not downloaded. Run: ollama pull ${MODEL}` : 'The reporter did not answer. Is Ollama running on this machine?'; }
+    status.textContent = ''; busy = false; send.disabled = false; input.focus();
+  }
+})();
+
+/* ---------- go ---------- */
+applyHeroMode();
+})();
+</script>
+</body>
+</html>

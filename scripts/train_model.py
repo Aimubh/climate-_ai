@@ -4,11 +4,10 @@ import os
 import sys
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor  # Example model, adjust as needed
+from sklearn.ensemble import HistGradientBoostingRegressor  # small on disk, fast, handles missing lags natively
 from sklearn.metrics import mean_squared_error
 from src.models.model import save_model  # Assuming save_model is defined in src/models/model.py
-from src.data_preprocessing.preprocess import preprocess_data  # Assuming preprocess_data is defined in preprocess.py
-from src.config import RESULTS_DIR, MODEL_DIR
+from src.config import RESULTS_DIR, MODEL_DIR, PROCESSED_DATA_DIR
 import joblib
 
 def load_data(data_path):
@@ -24,7 +23,7 @@ def load_data(data_path):
 def train_model(X_train, y_train):
     """Train the model using the provided data"""
     try:
-        model = RandomForestRegressor(n_estimators=100, random_state=42)  # Example: Random Forest
+        model = HistGradientBoostingRegressor(max_iter=400, learning_rate=0.05, random_state=42)
         model.fit(X_train, y_train)
         print("Model training completed.")
         return model
@@ -45,7 +44,7 @@ def evaluate_model(model, X_test, y_test):
 
 def main():
     # Paths to the data and model directories
-    data_path = os.path.join(RESULTS_DIR, 'processed_training_data.csv')  # Example data file
+    data_path = os.path.join(PROCESSED_DATA_DIR, 'processed_training_data.csv')  # Example data file
     model_path = os.path.join(MODEL_DIR, 'trained_model.pkl')  # Adjust file name as needed
 
     # Load data
