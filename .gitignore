@@ -13,3 +13,6 @@ outputs/
 site-review/shots/
 
 *.log
+
+# Jupyter checkpoint files, wherever they appear
+.ipynb_checkpoints
