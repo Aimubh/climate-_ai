@@ -1,8 +1,8 @@
 {
  "start": "2015-01-01",
- "split": "2025-09-21",
- "end": "2026-09-21",
- "train_rows": 46992,
+ "split": "2025-09-25",
+ "end": "2026-09-25",
+ "train_rows": 47040,
  "test_rows": 4380,
  "cities": [
   "New Delhi",
