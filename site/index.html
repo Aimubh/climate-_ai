@@ -22,6 +22,7 @@
   --accent:#67e8c5;--accent-hover:#8ff2d6;--accent-muted:rgba(103,232,197,.18);
   --text-secondary:#a9bcc0;--text-primary:#eaf3f1;
   --rain:#6fb4ff;--heat:#ffb35c;--line:rgba(169,188,192,.16);--line-strong:rgba(169,188,192,.42);
+  --chart-actual:#3f8edc;--chart-pred:#17ab85;
   --ease:cubic-bezier(.22,.61,.36,1);--ease-out:cubic-bezier(.16,1,.3,1);
   --tshadow:0 1px 2px rgba(5,5,10,.95),0 3px 12px rgba(5,5,10,.78),0 10px 44px rgba(5,5,10,.8);
   --display:"Unbounded",system-ui,sans-serif;--body:"Manrope",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
@@ -142,6 +143,28 @@ h2{font-size:clamp(28px,3.6vw,46px);max-width:18ch}
 .stamp{font-family:var(--mono);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;margin-top:6px;letter-spacing:.06em}
 .err{color:var(--heat)}
 
+/* prediction chart */
+.statrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:34px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.stat .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text-secondary)}
+.stat .v{font-family:var(--display);font-weight:700;font-size:30px;margin-top:6px}
+.stat .v small{font-size:14px;font-weight:500;color:var(--text-secondary)}
+.chartbox{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 18px 12px;margin-top:18px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:10px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:14px;height:3px;border-radius:2px}
+.chartbox canvas{width:100%;height:340px;touch-action:pan-y;cursor:crosshair}
+.tip{position:absolute;pointer-events:none;background:var(--canvas);border:1px solid var(--line-strong);border-radius:10px;padding:8px 11px;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text-secondary);white-space:nowrap;z-index:5}
+.tip b{color:var(--text-primary);font-weight:400}
+.ptable{margin-top:16px}
+.ptable summary{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--text-secondary);cursor:pointer;padding:8px 0}
+.ptable summary:hover{color:var(--text-primary)}
+.ptable table{width:100%;max-width:560px;border-collapse:collapse;font-size:14px;margin-top:8px}
+.ptable th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text-secondary);text-align:right;font-weight:400;padding:6px 10px;border-bottom:1px solid var(--line-strong)}
+.ptable th:first-child,.ptable td:first-child{text-align:left}
+.ptable td{text-align:right;padding:6px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+@media (max-width:600px){.chartbox canvas{height:260px}}
+
 /* how */
 .how .grid{display:grid;grid-template-columns:1fr 1.3fr;gap:clamp(28px,6vw,90px);align-items:start;margin-top:44px}
 .timeline{position:relative;display:grid;gap:34px;padding-left:64px}
@@ -186,7 +209,8 @@ h2{font-size:clamp(28px,3.6vw,46px);max-width:18ch}
 .fc .d{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text-secondary)}
 .fc .hi{font-family:var(--display);font-weight:700;font-size:22px;margin-top:8px}
 .fc .lo{font-family:var(--mono);font-size:12px;color:var(--text-secondary)}
-.fc .rn{font-size:12px;color:var(--rain);margin-top:6px;min-height:1.5em}
+.fc .od{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--accent);margin-top:5px;min-height:1.4em}
+.fc .rn{font-size:12px;color:var(--rain);margin-top:4px;min-height:1.5em}
 .note{font-family:var(--mono);font-size:12px;color:var(--text-secondary);margin-top:18px;letter-spacing:.04em;max-width:78ch;margin-left:auto;margin-right:auto}
 .ours{margin:22px auto 0;max-width:720px;padding:16px 20px;border-left:3px solid var(--accent);background:var(--panel);border-radius:0 14px 14px 0;text-align:left;font-size:16px;line-height:1.5}
 .ours strong{font-family:var(--display);font-size:22px;color:var(--accent);margin:0 4px}
@@ -316,7 +340,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     AI Climate Prediction
   </a>
   <ul>
-    <li><a href="#live">Live</a></li>
+    <li><a href="#live">Predictions</a></li>
+    <li><a href="mumbai.html">Mumbai stations</a></li>
     <li><a href="#how">How it works</a></li>
     <li><a href="#run">Try it</a></li>
     <li><a href="#faq">Answers</a></li>
@@ -346,13 +371,13 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       <div class="band" data-a="0.78" data-b="1" data-fx="rise" data-ramp="0.09">
         <h1><span class="sr">Tomorrow, read today.</span><span class="split" aria-hidden="true">Tomorrow, read today.</span></h1>
         <p class="sub">AI Climate Prediction turns live readings into next-day forecasts you can check against the sky.</p>
-        <div class="cta-row"><a class="btn primary" href="#live">See live readings</a><a class="btn ghost" href="#how">How it works</a></div>
+        <div class="cta-row"><a class="btn primary" href="#live">See the predictions</a><a class="btn ghost" href="#how">How it works</a></div>
       </div>
     </div>
     <div class="static-copy">
       <h1>Tomorrow, read today.</h1>
       <p>AI Climate Prediction turns live readings into next-day forecasts you can check against the sky.</p>
-      <div class="cta-row"><a class="btn primary" href="#live">See live readings</a><a class="btn ghost" href="#how">How it works</a></div>
+      <div class="cta-row"><a class="btn primary" href="#live">See the predictions</a><a class="btn ghost" href="#how">How it works</a></div>
     </div>
     <div class="chip" aria-hidden="true"><span class="dot"></span>LIVE FEED · OPEN-METEO · 15 MIN</div>
     <div class="cue" aria-hidden="true">SCROLL<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6l5 5 5-5"/></svg></div>
@@ -364,11 +389,24 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   <section class="sec live rv" id="live" aria-labelledby="live-h">
     <div class="wrap">
       <svg class="iso part" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path class="draw" d="M0 32C120 2 240 58 380 30S620 2 760 32 980 60 1200 26"/></svg>
-      <p class="kicker part">Live now</p>
-      <h2 id="live-h" class="part">Six cities, read this minute.</h2>
-      <p class="lede part">Straight from the feed our model learns from. Refreshed every 15 minutes. No key, no login.</p>
-      <div class="strip part" id="strip" aria-live="polite"></div>
-      <p class="stamp part"><span class="dot" aria-hidden="true"></span><span id="stamp">Reading the sky…</span></p>
+      <p class="kicker part">Prediction data</p>
+      <h2 id="live-h" class="part">Mumbai, every day predicted.</h2>
+      <p class="lede part">Every day of the Mumbai dataset scored by our model: the predicted next-day high against what the sky actually did.</p>
+      <div class="statrow part" id="pstats"></div>
+      <div class="chips part" id="prange" role="group" aria-label="Time range">
+        <button type="button" class="chipbtn" data-r="0" aria-pressed="true">ALL</button>
+        <button type="button" class="chipbtn" data-r="3650" aria-pressed="false">10Y</button>
+        <button type="button" class="chipbtn" data-r="1825" aria-pressed="false">5Y</button>
+        <button type="button" class="chipbtn" data-r="365" aria-pressed="false">1Y</button>
+        <button type="button" class="chipbtn" data-r="90" aria-pressed="false">90D</button>
+      </div>
+      <div class="chartbox part">
+        <div class="legend"><span><i style="background:var(--chart-actual)"></i>ACTUAL HIGH</span><span><i style="background:var(--chart-pred)"></i>PREDICTED HIGH</span></div>
+        <canvas id="pchart" role="img" aria-label="Daily maximum temperature in Mumbai: actual against the model's prediction"></canvas>
+        <div class="tip" id="ptip" hidden></div>
+      </div>
+      <details class="ptable part"><summary>TABLE VIEW · LAST 30 DAYS</summary><table><thead><tr><th>Date</th><th>Actual °C</th><th>Predicted °C</th><th>Error</th></tr></thead><tbody id="ptbody"></tbody></table></details>
+      <p class="stamp part"><span class="dot" aria-hidden="true"></span><span id="stamp">Loading the predictions…</span></p>
     </div>
   </section>
 
@@ -641,7 +679,7 @@ MQLS.forEach(m => m.addEventListener('change', applyHeroMode));
 const tl = document.getElementById('timeline');
 const sizeRide = () => tl.style.setProperty('--ride', Math.max(0, tl.offsetHeight - 36) + 'px');
 sizeRide();
-let rs; addEventListener('resize', () => { clearTimeout(rs); rs = setTimeout(() => { sizeCanvas(); sizeRide(); lastDrawP = -1; if (scrubOn) onScroll(); else draw(1, 0, true); }, 120); });
+let rs; addEventListener('resize', () => { clearTimeout(rs); rs = setTimeout(() => { sizeCanvas(); sizeRide(); lastDrawP = -1; if (scrubOn) onScroll(); else draw(1, 0, true); drawChart(); }, 120); });
 
 /* ---------- reduced motion, live in both directions ---------- */
 function pinToFinalStates(){ document.documentElement.classList.add('rm'); if (holdProg > 0 && !holdDone) completeHold(); }
@@ -661,23 +699,110 @@ const CITIES = [
   { n: 'Kolkata', la: 22.57, lo: 88.36 }, { n: 'Chennai', la: 13.08, lo: 80.27 }, { n: 'Hyderabad', la: 17.39, lo: 78.49 }
 ];
 const COND = c => c === 0 ? 'Clear sky' : c <= 2 ? 'Partly cloudy' : c === 3 ? 'Overcast' : c <= 48 ? 'Fog' : c <= 57 ? 'Drizzle' : c <= 67 ? 'Rain' : c <= 77 ? 'Snow' : c <= 82 ? 'Showers' : c <= 86 ? 'Snow showers' : 'Thunderstorm';
-const strip = document.getElementById('strip'), stamp = document.getElementById('stamp');
-strip.innerHTML = CITIES.map(c => `<article class="card"><div class="city">${c.n}</div><div class="temp">--<small>°C</small></div><div class="cond">Reading…</div><div class="meta"><span>RH<b>--</b></span><span>RAIN<b>--</b></span><span>WIND<b>--</b></span></div><span class="bar" aria-hidden="true"></span></article>`).join('');
-async function loadLive(){
-  try {
-    const u = `https://api.open-meteo.com/v1/forecast?latitude=${CITIES.map(c => c.la).join(',')}&longitude=${CITIES.map(c => c.lo).join(',')}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code&timezone=Asia%2FKolkata`;
-    const res = await fetch(u); if (!res.ok) throw new Error(res.status);
-    const data = await res.json(); const arr = Array.isArray(data) ? data : [data];
-    [...strip.children].forEach((card, i) => { const d = arr[i] && arr[i].current; if (!d) return;
-      card.querySelector('.temp').innerHTML = `${Math.round(d.temperature_2m)}<small>°C</small>`;
-      card.querySelector('.cond').textContent = COND(d.weather_code);
-      const m = card.querySelectorAll('.meta b'); m[0].textContent = d.relative_humidity_2m + '%'; m[1].textContent = d.precipitation + ' mm'; m[2].textContent = Math.round(d.wind_speed_10m) + ' km/h';
-      card.querySelector('.bar').style.setProperty('--rh', (d.relative_humidity_2m / 100).toFixed(2)); });
-    const t = arr[0] && arr[0].current ? arr[0].current.time.replace('T', ' ') : '';
-    stamp.textContent = `LIVE · ${t} IST · OPEN-METEO`;
-  } catch (e) { stamp.innerHTML = '<span class="err">The live feed did not answer. The readings will return when it does.</span>'; }
+
+/* ---------- prediction data: every day of the Mumbai dataset, written by scripts/predict_mumbai.py ---------- */
+const stamp = document.getElementById('stamp');
+const pcv = document.getElementById('pchart'), pctx = pcv.getContext('2d'), ptip = document.getElementById('ptip');
+const CSS = getComputedStyle(document.documentElement);
+const CA = CSS.getPropertyValue('--chart-actual').trim() || '#3f8edc';
+const CP = CSS.getPropertyValue('--chart-pred').trim() || '#17ab85';
+let MUM = null, pFrom = 0;   // pFrom = how many most-recent days to show; 0 = all
+
+function drawChart(hoverI){
+  if (!MUM) return;
+  const n = MUM.dates.length, from = pFrom ? Math.max(0, n - pFrom) : 0;
+  const dates = MUM.dates.slice(from), actual = MUM.actual.slice(from), pred = MUM.predicted.slice(from);
+  const dpr2 = Math.min(2, window.devicePixelRatio || 1), W = pcv.clientWidth, H = pcv.clientHeight;
+  pcv.width = Math.round(W * dpr2); pcv.height = Math.round(H * dpr2);
+  pctx.setTransform(dpr2, 0, 0, dpr2, 0, 0); pctx.clearRect(0, 0, W, H);
+  const padL = 34, padR = 10, padT = 8, padB = 22, iw = W - padL - padR, ih = H - padT - padB;
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < dates.length; i++){
+    const a = actual[i], p = pred[i];
+    if (a != null) { if (a < lo) lo = a; if (a > hi) hi = a; }
+    if (p != null) { if (p < lo) lo = p; if (p > hi) hi = p; }
+  }
+  if (lo > hi) return;
+  lo = Math.floor(lo - 1); hi = Math.ceil(hi + 1);
+  const X = i => padL + iw * i / Math.max(1, dates.length - 1);
+  const Y = v => padT + ih * (1 - (v - lo) / (hi - lo));
+  // recessive grid with y labels
+  pctx.font = '11px "IBM Plex Mono",monospace'; pctx.fillStyle = 'rgba(169,188,192,.75)';
+  pctx.strokeStyle = 'rgba(169,188,192,.12)'; pctx.lineWidth = 1;
+  const step = Math.max(1, Math.round((hi - lo) / 5));
+  for (let v = lo; v <= hi; v += step){ const y = Math.round(Y(v)) + .5;
+    pctx.beginPath(); pctx.moveTo(padL, y); pctx.lineTo(W - padR, y); pctx.stroke();
+    pctx.textAlign = 'right'; pctx.textBaseline = 'middle'; pctx.fillText(v + '°', padL - 7, y); }
+  // x labels: ~6 evenly spaced dates, year for long ranges, month-day for short
+  pctx.textAlign = 'center'; pctx.textBaseline = 'top';
+  const ticks = Math.min(6, dates.length), shortRange = dates.length <= 400;
+  for (let k = 0; k < ticks; k++){ const i = Math.round(k * (dates.length - 1) / Math.max(1, ticks - 1));
+    pctx.fillText(shortRange ? dates[i].slice(5) : dates[i].slice(0, 4), X(i), padT + ih + 7); }
+  // the two series, min-max decimated when there are more days than pixels
+  const series = (vals, color) => {
+    pctx.strokeStyle = color; pctx.lineWidth = 2; pctx.lineJoin = 'round'; pctx.beginPath();
+    let pen = false;
+    if (dates.length > iw * 1.5){
+      for (let px = 0; px < iw; px++){
+        const a = Math.floor(px * dates.length / iw), b = Math.max(a + 1, Math.floor((px + 1) * dates.length / iw));
+        let mn = Infinity, mx = -Infinity;
+        for (let i = a; i < b; i++){ const v = vals[i]; if (v == null) continue; if (v < mn) mn = v; if (v > mx) mx = v; }
+        if (mn > mx){ pen = false; continue; }
+        const x = padL + px + .5;
+        pen ? pctx.lineTo(x, Y(mx)) : pctx.moveTo(x, Y(mx)); pctx.lineTo(x, Y(mn)); pen = true;
+      }
+    } else {
+      for (let i = 0; i < vals.length; i++){ const v = vals[i];
+        if (v == null){ pen = false; continue; }
+        pen ? pctx.lineTo(X(i), Y(v)) : pctx.moveTo(X(i), Y(v)); pen = true; }
+    }
+    pctx.stroke();
+  };
+  series(actual, CA); series(pred, CP);
+  // crosshair + markers for the hovered day
+  if (hoverI != null && hoverI >= 0 && hoverI < dates.length){
+    const x = Math.round(X(hoverI)) + .5;
+    pctx.strokeStyle = 'rgba(169,188,192,.45)'; pctx.lineWidth = 1;
+    pctx.beginPath(); pctx.moveTo(x, padT); pctx.lineTo(x, padT + ih); pctx.stroke();
+    [[actual[hoverI], CA], [pred[hoverI], CP]].forEach(([v, c]) => { if (v == null) return;
+      pctx.fillStyle = c; pctx.beginPath(); pctx.arc(X(hoverI), Y(v), 4, 0, 7); pctx.fill();
+      pctx.strokeStyle = 'rgba(18,35,44,1)'; pctx.lineWidth = 2; pctx.stroke(); });
+  }
+  drawChart.view = { dates, actual, pred, padL, iw };
 }
-loadLive();
+pcv.addEventListener('pointermove', e => {
+  const v = drawChart.view; if (!v) return;
+  const r = pcv.getBoundingClientRect();
+  const i = Math.round((e.clientX - r.left - v.padL) / v.iw * (v.dates.length - 1));
+  if (i < 0 || i >= v.dates.length){ ptip.hidden = true; drawChart(); return; }
+  drawChart(i);
+  ptip.innerHTML = `<b>${v.dates[i]}</b><br>ACTUAL <b>${v.actual[i] == null ? '—' : v.actual[i] + '°C'}</b><br>PREDICTED <b>${v.pred[i] == null ? '—' : v.pred[i] + '°C'}</b>`;
+  ptip.hidden = false;
+  const bx = pcv.parentElement.getBoundingClientRect();
+  ptip.style.left = Math.min(bx.width - ptip.offsetWidth - 8, Math.max(8, e.clientX - bx.left + 14)) + 'px';
+  ptip.style.top = (e.clientY - bx.top - ptip.offsetHeight - 12) + 'px';
+});
+pcv.addEventListener('pointerleave', () => { ptip.hidden = true; drawChart(); });
+document.getElementById('prange').addEventListener('click', e => {
+  const b = e.target.closest('.chipbtn'); if (!b) return;
+  [...b.parentElement.children].forEach(x => x.setAttribute('aria-pressed', x === b));
+  pFrom = +b.dataset.r; ptip.hidden = true; drawChart();
+});
+fetch('assets/mumbai.json', { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(m => {
+  MUM = m;
+  document.getElementById('pstats').innerHTML =
+    `<div class="stat"><div class="k">MODEL ERROR, MEAN</div><div class="v">${esc(m.mae)}<small> °C</small></div></div>` +
+    `<div class="stat"><div class="k">CARRY TODAY FORWARD</div><div class="v">${esc(m.persistence_mae)}<small> °C</small></div></div>` +
+    `<div class="stat"><div class="k">DAYS PREDICTED</div><div class="v">${m.days.toLocaleString('en-IN')}</div></div>` +
+    `<div class="stat"><div class="k">SPAN</div><div class="v">${esc(m.start.slice(0, 4))}<small>–${esc(m.end.slice(0, 4))}</small></div></div>`;
+  const rows = [];
+  for (let i = m.dates.length - 1; i >= 0 && rows.length < 30; i--){ if (m.actual[i] == null) continue;
+    const err = (m.predicted[i] - m.actual[i]).toFixed(1);
+    rows.push(`<tr><td>${esc(m.dates[i])}</td><td>${esc(m.actual[i])}</td><td>${esc(m.predicted[i])}</td><td>${err > 0 ? '+' + err : err}</td></tr>`); }
+  document.getElementById('ptbody').innerHTML = rows.join('');
+  stamp.textContent = `MUMBAI · ${m.dates.length.toLocaleString('en-IN')} DAYS · ${m.start} → ${m.end} · ${m.source.toUpperCase()}`;
+  drawChart();
+}).catch(() => { stamp.innerHTML = '<span class="err">assets/mumbai.json is missing. Run: python -m scripts.predict_mumbai &lt;csv&gt; --out site/assets/mumbai.json</span>'; });
 
 /* ---------- the interactive moment: hold to pull tomorrow ---------- */
 const chips = document.getElementById('chips'), hold = document.getElementById('hold'), fill = hold.querySelector('.fill'), hint = document.getElementById('hint'), fc = document.getElementById('fc'), holdlabel = document.getElementById('holdlabel');
@@ -690,8 +815,9 @@ fetch('assets/forecast.json', { cache: 'no-store' }).then(r => r.ok ? r.json() :
 }).catch(() => {});
 function showOurs(){
   const est = FORECAST && FORECAST.cities.find(c => c.city === city.n);
-  if (!est) { ours.hidden = true; return; }
-  ours.innerHTML = `<b>Our model says</b> tomorrow's high in ${esc(city.n)} is <strong>${esc(est.model_tomorrow_max)}°C</strong> from today's ${esc(est.today_max)}°C. The feed's own forecast says ${esc(est.feed_tomorrow_max)}°C.`;
+  const d0 = est && est.days && est.days[0], dN = est && est.days[est.days.length - 1];
+  if (!d0) { ours.hidden = true; return; }
+  ours.innerHTML = `<b>Our model says</b> tomorrow's high in ${esc(city.n)} is <strong>${esc(d0.ours)}°C</strong> from today's ${esc(est.today_max)}°C, and ${esc(dN.ours)}°C seven days out. The feed says ${esc(d0.feed)}°C tomorrow. Each predicted day feeds the next.`;
   ours.hidden = false;
 }
 chips.innerHTML = CITIES.map((c, i) => `<button type="button" class="chipbtn" aria-pressed="${i === 0}">${c.n}</button>`).join('');
@@ -712,8 +838,10 @@ async function completeHold(){
   try {
     const u = `https://api.open-meteo.com/v1/forecast?latitude=${city.la}&longitude=${city.lo}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code&timezone=Asia%2FKolkata&forecast_days=7`;
     const d = (await (await fetch(u)).json()).daily;
+    const est = FORECAST && FORECAST.cities.find(c => c.city === city.n);
+    const oursBy = {}; if (est) est.days.forEach(x => { oursBy[x.date] = x.ours; });
     fc.innerHTML = d.time.map((day, i) => { const dt = new Date(day + 'T00:00:00'); const lab = i === 0 ? 'TODAY' : i === 1 ? 'TOMORROW' : dt.toLocaleDateString('en-IN', { weekday: 'short' }).toUpperCase();
-      return `<div class="day"><div class="d">${lab}</div><div class="hi">${Math.round(d.temperature_2m_max[i])}°</div><div class="lo">${Math.round(d.temperature_2m_min[i])}° low</div><div class="rn">${d.precipitation_sum[i] > 0 ? d.precipitation_sum[i] + ' mm' : COND(d.weather_code[i])}</div></div>`; }).join('');
+      return `<div class="day"><div class="d">${lab}</div><div class="hi">${Math.round(d.temperature_2m_max[i])}°</div><div class="lo">${Math.round(d.temperature_2m_min[i])}° low</div><div class="od">${oursBy[day] != null ? 'OURS ' + oursBy[day] + '°' : ''}</div><div class="rn">${d.precipitation_sum[i] > 0 ? d.precipitation_sum[i] + ' mm' : COND(d.weather_code[i])}</div></div>`; }).join('');
     requestAnimationFrame(() => { fc.classList.add('lit'); setTimeout(() => fc.classList.add('settled'), 1400); });
     showOurs();
     hint.textContent = `${city.n.toUpperCase()} · NEXT SEVEN DAYS · TAP ANOTHER CITY TO RUN AGAIN`;
@@ -763,9 +891,9 @@ let BULLETIN = null;
   const history = []; let busy = false, opened = false;
   fetch(OLLAMA + '/api/version').then(r => r.ok ? r.json() : null).then(v => { if (v) fab.hidden = false; }).catch(() => {});
   function context(){
-    const lines = ['Live readings on the page right now:'];
-    document.querySelectorAll('#strip .card').forEach(c => { const m = c.querySelectorAll('.meta b'); lines.push(`${c.querySelector('.city').textContent}: ${c.querySelector('.temp').textContent.trim()}, ${c.querySelector('.cond').textContent}, humidity ${m[0].textContent}, rain ${m[1].textContent}, wind ${m[2].textContent}`); });
-    if (FORECAST) lines.push('', `Our model's estimate of tomorrow's high (${FORECAST.for_date}), with the public feed's own forecast in brackets:`, ...FORECAST.cities.map(c => `${c.city}: ${c.model_tomorrow_max} C [feed ${c.feed_tomorrow_max} C], today ${c.today_max} C`), `Model error on the held-out year: ${FORECAST.test_mae} C. Carrying today forward: ${FORECAST.persistence_mae} C.`);
+    const lines = [];
+    if (MUM) lines.push(`Mumbai dataset predictions on the page: ${MUM.days} days (${MUM.start} to ${MUM.end}), model mean error ${MUM.mae} C, carrying today forward ${MUM.persistence_mae} C.`);
+    if (FORECAST) lines.push('', `Our model's predicted max for the next 7 days (tomorrow ${FORECAST.for_date} first, each predicted day feeding the next):`, ...FORECAST.cities.map(c => `${c.city}: today ${c.today_max} C, then ${c.days.map(d => d.ours).join(', ')} C [feed says ${c.days[0].feed} C tomorrow]`), `Model error on the held-out year: ${FORECAST.test_mae} C. Carrying today forward: ${FORECAST.persistence_mae} C.`);
     if (BULLETIN) { const b = BULLETIN; lines.push('', `Today's bulletin (${b.dateline}): ${b.headline}`, b.on_air, ...(b.changes || []).map(c => `${c.city}: ${c.what_changed} Why: ${c.why}`), `Next: ${b.next.system} moves from ${b.next.from_city} to ${b.next.to_city} in about ${b.next.eta_hours} h, ${b.next.confidence} confidence. ${b.next.reason}`); }
     return lines.join('\n');
   }

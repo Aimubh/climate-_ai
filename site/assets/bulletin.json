@@ -1,168 +1,127 @@
 {
- "headline": "Monsoon Withdrawal Brings Cooling in Northern India, Heat in South",
- "dateline": "26 September 2026, 18:15 IST",
- "on_air": "Good evening, viewers. Today, the monsoon is gradually withdrawing from northern India, bringing cooler temperatures to cities like New Delhi and Lucknow. In the south, however, temperatures are rising, with Hyderabad and Chennai expecting a warm tomorrow. Let's dive into the details. In New Delhi, the temperature is 23.9°C, down from 29.6°C yesterday. This is likely due to the monsoon's retreat. Jaipur, at 30.1°C, will see a high of 34.2°C tomorrow, as the system moves in from the northwest. Lucknow, with 24.6°C, will experience showers, while Ahmedabad, at 32.7°C, will have a drizzle. Bhopal, at 26.8°C, will see overcast skies tomorrow. Kolkata, at 28.6°C, will remain warm with a high of 31.9°C. Nagpur, at 28.1°C, will have partly cloudy skies. Mumbai, at 28.4°C, will see a slight drop to 30.8°C. Pune, at 25.2°C, will have showers, while Hyderabad, at 27.4°C, will remain overcast. Chennai, at 30.6°C, will see a high of 35.0°C. Bangalore, at 25.8°C, will experience drizzle. Tomorrow, the air over New Delhi will head towards Jaipur, while the air over Mumbai will move towards Pune. Stay tuned for updates and remember to pack light clothing for the south and a light jacket for the north. Goodnight.",
+ "headline": "Heat persists in northern India, monsoon influence fades in south",
+ "dateline": "2026-10-09, 11:30 IST",
+ "on_air": "Good morning, viewers. Today, the heat continues to dominate northern India, with temperatures remaining high. In New Delhi, the temperature is 31.4°C, down slightly from yesterday. Lucknow and Ahmedabad also see minor cooling, with Lucknow dropping to 28.2°C and Ahmedabad to 35.2°C. Tomorrow, New Delhi is expected to reach 32.1°C, while Lucknow and Ahmedabad will hover around 29.2°C and 35.6°C, respectively. The monsoon's influence is waning, as seen in Lucknow, where drizzle persists. In the south, Hyderabad and Chennai are experiencing clear skies, with Hyderabad reaching 34.1°C. Tomorrow, expect a slight increase in temperatures in Hyderabad to 34.1°C. Bangalore, too, will see a minor rise to 30.5°C. The air over New Delhi is moving towards Jaipur, while the air over Mumbai is heading towards Pune. Stay tuned for updates as we move into tomorrow. Good day to you all.",
  "changes": [
   {
    "city": "New Delhi",
-   "what_changed": "Temperature dropped from 29.6°C to 23.9°C, humidity 77%, drizzle, wind 8.4 km/h from the east, pressure 977.2 hPa, cloud 100%.",
-   "why": "Monsoon withdrawal."
-  },
-  {
-   "city": "Jaipur",
-   "what_changed": "Temperature increased from 32.2°C to 34.2°C, humidity 53%, overcast, wind 4.6 km/h from the north-west, pressure 954.3 hPa, cloud 81%.",
-   "why": "Western disturbance."
+   "what_changed": "Temperature down 2.1°C, max temp to 32.1°C, min temp to 22.2°C, clear sky, 0.0 mm rain",
+   "why": "Monsoon withdrawal and a pressure fall likely cause the cooling."
   },
   {
    "city": "Lucknow",
-   "what_changed": "Temperature increased from 26.7°C to 28.7°C, humidity 97%, drizzle, wind 16.0 km/h from the south-east, pressure 983.8 hPa, cloud 97%.",
-   "why": "Monsoon withdrawal."
+   "what_changed": "Temperature down 0.3°C, max temp to 29.2°C, drizzle, 0.3 mm rain",
+   "why": "Likely due to a pressure fall and a shift in wind direction."
   },
   {
    "city": "Ahmedabad",
-   "what_changed": "Temperature decreased from 34.8°C to 33.3°C, humidity 51%, overcast, wind 11.4 km/h from the south-west, pressure 998.7 hPa, cloud 100%.",
-   "why": "Monsoon withdrawal."
-  },
-  {
-   "city": "Bhopal",
-   "what_changed": "Temperature increased from 29.3°C to 29.8°C, humidity 77%, partly cloudy, wind 12.4 km/h from the west, pressure 948.5 hPa, cloud 63%.",
-   "why": "Monsoon withdrawal."
-  },
-  {
-   "city": "Kolkata",
-   "what_changed": "Temperature increased from 31.5°C to 31.9°C, humidity 82%, mainly clear, wind 7.8 km/h from the south-east, pressure 1005.5 hPa, cloud 28%.",
-   "why": "Monsoon withdrawal."
-  },
-  {
-   "city": "Nagpur",
-   "what_changed": "Temperature increased from 30.5°C to 31.7°C, humidity 74%, overcast, wind 8.3 km/h from the west, pressure 970.1 hPa, cloud 100%.",
-   "why": "Monsoon withdrawal."
-  },
-  {
-   "city": "Mumbai",
-   "what_changed": "Temperature increased from 30.5°C to 30.8°C, humidity 75%, mainly clear, wind 10.8 km/h from the west, pressure 1007.8 hPa, cloud 47%.",
-   "why": "Monsoon withdrawal."
-  },
-  {
-   "city": "Pune",
-   "what_changed": "Temperature decreased from 29.1°C to 29.7°C, humidity 75%, overcast, wind 16.4 km/h from the west, pressure 947.5 hPa, cloud 100%.",
-   "why": "Monsoon withdrawal."
+   "what_changed": "Temperature down 1.0°C, max temp to 35.6°C, clear sky, 0.0 mm rain",
+   "why": "A pressure fall and a wind shift likely contribute to the cooling."
   },
   {
    "city": "Hyderabad",
-   "what_changed": "Temperature increased from 30.4°C to 31.8°C, humidity 70%, overcast, wind 10.1 km/h from the west, pressure 952.7 hPa, cloud 97%.",
-   "why": "Monsoon withdrawal."
-  },
-  {
-   "city": "Chennai",
-   "what_changed": "Temperature increased from 36.1°C to 35.0°C, humidity 72%, clear sky, wind 12.1 km/h from the south-east, pressure 1005.9 hPa, cloud 6%.",
-   "why": "Monsoon withdrawal."
-  },
-  {
-   "city": "Bengaluru",
-   "what_changed": "Temperature increased from 28.2°C to 30.0°C, humidity 60%, mainly clear, wind 5.9 km/h from the west, pressure 911.3 hPa, cloud 20%.",
-   "why": "Monsoon withdrawal."
+   "what_changed": "Temperature up 1.0°C, max temp to 34.1°C, clear sky, 0.0 mm rain",
+   "why": "A pressure fall and a wind shift likely cause the warming."
   }
  ],
  "next": {
   "system": "the air over New Delhi",
   "from_city": "New Delhi",
   "to_city": "Jaipur",
-  "eta_hours": 20,
+  "eta_hours": 72,
   "confidence": "high",
-  "reason": "The wind is steady at 8.4 km/h from the east, heading towards Jaipur."
+  "reason": "The wind is steady at 12.2 km/h from the west, indicating a strong and consistent flow."
  },
  "watch": [
-  "Stay cool in the north as temperatures drop, but prepare for heat in the south.",
-  "Rain is expected in the western parts, so carry an umbrella if you're heading west.",
-  "Humidity levels are high in the south, so stay hydrated."
+  "Keep an eye on the temperature rise in southern cities like Hyderabad and Bangalore.",
+  "The monsoon's influence is diminishing, so expect clear skies and higher temperatures in the coming days."
  ],
  "source": "local:qwen2.5:7b",
- "generated_at": "2026-09-26T18:19+05:30",
+ "generated_at": "2026-10-09T11:41+05:30",
  "cities": [
   {
    "city": "New Delhi",
-   "temp_c": 23.9,
-   "sky": "drizzle",
-   "wind_kmh": 8.4,
-   "wind_from": "east"
+   "temp_c": 31.4,
+   "sky": "clear sky",
+   "wind_kmh": 5.6,
+   "wind_from": "south-east"
   },
   {
    "city": "Jaipur",
-   "temp_c": 30.1,
-   "sky": "overcast",
-   "wind_kmh": 4.6,
-   "wind_from": "north-west"
+   "temp_c": 32.8,
+   "sky": "clear sky",
+   "wind_kmh": 12.2,
+   "wind_from": "west"
   },
   {
    "city": "Lucknow",
-   "temp_c": 24.6,
+   "temp_c": 28.2,
    "sky": "drizzle",
-   "wind_kmh": 16.0,
-   "wind_from": "south-east"
+   "wind_kmh": 3.5,
+   "wind_from": "north"
   },
   {
    "city": "Ahmedabad",
-   "temp_c": 32.7,
-   "sky": "overcast",
-   "wind_kmh": 11.4,
-   "wind_from": "south-west"
+   "temp_c": 35.2,
+   "sky": "clear sky",
+   "wind_kmh": 4.3,
+   "wind_from": "west"
   },
   {
    "city": "Bhopal",
-   "temp_c": 26.8,
-   "sky": "partly cloudy",
-   "wind_kmh": 12.4,
-   "wind_from": "west"
+   "temp_c": 33.2,
+   "sky": "clear sky",
+   "wind_kmh": 7.2,
+   "wind_from": "north-west"
   },
   {
    "city": "Kolkata",
-   "temp_c": 28.6,
-   "sky": "mainly clear",
-   "wind_kmh": 7.8,
-   "wind_from": "south-east"
+   "temp_c": 30.4,
+   "sky": "overcast",
+   "wind_kmh": 4.1,
+   "wind_from": "north-west"
   },
   {
    "city": "Nagpur",
-   "temp_c": 28.1,
-   "sky": "overcast",
-   "wind_kmh": 8.3,
-   "wind_from": "west"
+   "temp_c": 34.8,
+   "sky": "mainly clear",
+   "wind_kmh": 4.5,
+   "wind_from": "north-west"
   },
   {
    "city": "Mumbai",
-   "temp_c": 28.4,
-   "sky": "mainly clear",
-   "wind_kmh": 10.8,
-   "wind_from": "west"
-  },
-  {
-   "city": "Pune",
-   "temp_c": 25.2,
-   "sky": "overcast",
-   "wind_kmh": 16.4,
-   "wind_from": "west"
-  },
-  {
-   "city": "Hyderabad",
-   "temp_c": 27.4,
-   "sky": "overcast",
-   "wind_kmh": 10.1,
-   "wind_from": "west"
-  },
-  {
-   "city": "Chennai",
-   "temp_c": 30.6,
+   "temp_c": 36.2,
    "sky": "clear sky",
-   "wind_kmh": 12.1,
+   "wind_kmh": 4.0,
    "wind_from": "south-east"
   },
   {
-   "city": "Bengaluru",
-   "temp_c": 25.8,
+   "city": "Pune",
+   "temp_c": 32.5,
    "sky": "mainly clear",
-   "wind_kmh": 5.9,
-   "wind_from": "west"
+   "wind_kmh": 9.9,
+   "wind_from": "east"
+  },
+  {
+   "city": "Hyderabad",
+   "temp_c": 32.2,
+   "sky": "clear sky",
+   "wind_kmh": 7.6,
+   "wind_from": "east"
+  },
+  {
+   "city": "Chennai",
+   "temp_c": 33.2,
+   "sky": "clear sky",
+   "wind_kmh": 10.7,
+   "wind_from": "east"
+  },
+  {
+   "city": "Bengaluru",
+   "temp_c": 29.7,
+   "sky": "mainly clear",
+   "wind_kmh": 8.2,
+   "wind_from": "north-east"
   }
  ]
 }

@@ -32,7 +32,7 @@ def fetch_recent():
     q = {
         'latitude': ','.join(str(CITIES[n][0]) for n in names),
         'longitude': ','.join(str(CITIES[n][1]) for n in names),
-        'daily': ','.join(DAILY_FIELDS), 'past_days': 3, 'forecast_days': 2, 'timezone': 'Asia/Kolkata',
+        'daily': ','.join(DAILY_FIELDS), 'past_days': 3, 'forecast_days': 8, 'timezone': 'Asia/Kolkata',
     }
     url = 'https://api.open-meteo.com/v1/forecast?' + urllib.parse.urlencode(q)
     with urllib.request.urlopen(url, timeout=60) as r:
@@ -45,6 +45,39 @@ def fetch_recent():
         f.insert(2, 'lon', CITIES[name][1])
         frames.append(f)
     return pd.concat(frames, ignore_index=True)
+
+
+def week_ahead(model, feats, today, days=7):
+    """Walk the model forward one day at a time: each predicted max becomes the next day's input.
+
+    Future days' other drivers (rain, wind, pressure, humidity, min and mean temperature) stay
+    the feed's forecast; the maximum-temperature chain (tmax and its lags) is the model's own.
+
+    Args:
+        feats (pd.DataFrame): make_features output for ONE location, past days through today+days.
+        today (datetime.date): the day the chain starts from.
+
+    Returns:
+        list[dict]: one {'date', 'ours', 'feed'} per predicted day, tomorrow first.
+    """
+    g = feats.set_index('date')
+    chain = g['tmax'].to_dict()                    # observed/feed values; our predictions overwrite the future
+    out = []
+    for k in range(days):
+        d = (today + timedelta(days=k)).isoformat()
+        if d not in g.index:
+            break
+        row = g.loc[[d]].copy()
+        row['tmax'] = chain[d]
+        for j in (1, 2, 3):
+            row[f'tmax_lag{j}'] = chain.get((today + timedelta(days=k - j)).isoformat())
+        row['tmax_delta1'] = row['tmax'] - row['tmax_lag1']
+        nxt = (today + timedelta(days=k + 1)).isoformat()
+        p = round(float(model.predict(row[FEATURES].astype(float))[0]), 1)
+        feed = g['tmax'].get(nxt)
+        out.append({'date': nxt, 'ours': p, 'feed': None if feed is None or pd.isna(feed) else float(feed)})
+        chain[nxt] = p
+    return out
 
 
 def main():
@@ -63,11 +96,11 @@ def main():
 
     recent = make_features(fetch_recent())
     today = datetime.now(IST).date()
-    rows = recent[recent['date'] == today.isoformat()].reset_index(drop=True)
-    feed = recent[recent['date'] == (today + timedelta(days=1)).isoformat()].set_index('city')['tmax']
-    preds = model.predict(rows[FEATURES].astype(float))
-    cities = [{'city': r['city'], 'today_max': float(r['tmax']), 'model_tomorrow_max': round(float(p), 1),
-               'feed_tomorrow_max': float(feed[r['city']])} for r, p in zip(rows.to_dict('records'), preds)]
+    cities = []
+    for name in CITIES:
+        f = recent[recent['city'] == name]
+        today_max = float(f[f['date'] == today.isoformat()]['tmax'].iloc[0])
+        cities.append({'city': name, 'today_max': today_max, 'days': week_ahead(model, f, today)})
 
     result = {
         'generated_at': datetime.now(IST).isoformat(timespec='minutes'), 'for_date': (today + timedelta(days=1)).isoformat(),
@@ -81,9 +114,10 @@ def main():
 
     print(f"model {result['model']}: mean error {result['test_mae']} C on {meta['test_rows']} held-out city-days "
           f"({meta['split']} to {meta['end']}); carrying today forward: {result['persistence_mae']} C")
-    print(f"\nTomorrow ({result['for_date']}), max temperature:\n{'city':<12}{'today':>8}{'ours':>8}{'feed':>8}")
+    print(f"\nNext seven days, our predicted max (tomorrow {result['for_date']} first):")
+    print(f"{'city':<12}{'today':>8}  " + ''.join(f"{'+%dd' % (k + 1):>7}" for k in range(7)))
     for c in cities:
-        print(f"{c['city']:<12}{c['today_max']:>8.1f}{c['model_tomorrow_max']:>8.1f}{c['feed_tomorrow_max']:>8.1f}")
+        print(f"{c['city']:<12}{c['today_max']:>8.1f}  " + ''.join(f"{d['ours']:>7.1f}" for d in c['days']))
     print(f"\nWritten to {a.out}")
 
 

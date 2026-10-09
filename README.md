@@ -27,8 +27,13 @@ Run the pipeline from the project root. Every script is a module, so use `python
 python -m scripts.fetch_weather        # real daily history for 12 cities since 2015, from Open-Meteo
 python -m scripts.train_model          # gradient-boosted trees on next-day max temperature
 python -m scripts.evaluate_model       # MSE and R2 on the held-out last 365 days
-python -m scripts.predict_today --out site/assets/forecast.json     # tomorrow's estimate per city
+python -m scripts.predict_today --out site/assets/forecast.json     # next 7 days per city, chained day by day
+python -m scripts.predict_stations --out site/assets/stations.json  # next 7 days for 38 Mumbai stations
+python -m scripts.predict_mumbai <cleaned_data.csv> --out site/assets/mumbai.json  # score every day of a Mumbai observation dataset
 ```
+
+The main page charts the Mumbai dataset's predictions (every day, 1997-2024) and shows the 7-day
+city forecasts; `site/mumbai.html` shows the 38 stations with search and a date picker.
 
 Then the reporter, in one of three modes:
 
