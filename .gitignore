@@ -16,3 +16,7 @@ site-review/shots/
 
 # Jupyter checkpoint files, wherever they appear
 .ipynb_checkpoints
+
+# Vercel local link and env
+.vercel/
+.env*.local
