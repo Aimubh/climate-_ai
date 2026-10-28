@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mumbai by Station</title>
+<meta name="description" content="Tomorrow's predicted high for every Mumbai suburban station, from the AI Climate Prediction model.">
+<meta name="theme-color" content="#0b161d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b161d'/%3E%3Cpath d='M8 24c10-10 22 10 32 0s12-6 16 0M8 34c10-10 22 10 32 0s12-6 16 0M8 44c10-10 22 10 32 0s12-6 16 0' fill='none' stroke='%2367e8c5' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#0b161d;--panel:#12232c;--panel-2:#172e39;
+  --accent:#67e8c5;--accent-hover:#8ff2d6;--accent-muted:rgba(103,232,197,.18);
+  --text-secondary:#a9bcc0;--text-primary:#eaf3f1;
+  --rain:#6fb4ff;--heat:#ffb35c;--line:rgba(169,188,192,.16);--line-strong:rgba(169,188,192,.42);
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --display:"Unbounded",system-ui,sans-serif;--body:"Manrope",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--canvas);color:var(--text-primary);font-family:var(--body);font-size:17px;line-height:1.6;min-height:100vh}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px clamp(16px,4vw,48px);background:linear-gradient(rgba(11,22,29,.86),rgba(11,22,29,.5));backdrop-filter:blur(12px);border-bottom:1px solid rgba(169,188,192,.08)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:500;font-size:14px}
+.brand svg{width:26px;height:26px}
+.nav a.back{text-decoration:none;font-size:14px;color:var(--text-secondary);transition:color .25s var(--ease)}
+.nav a.back:hover{color:var(--text-primary)}
+.sec{padding:clamp(48px,7vw,90px) clamp(16px,4vw,48px)}
+.wrap{max-width:1180px;margin:0 auto}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:22px;height:1px;background:var(--accent)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.2vw,52px);line-height:1.08;letter-spacing:-.01em;max-width:18ch}
+.lede{color:var(--text-secondary);max-width:56ch;margin-top:14px;font-size:clamp(16px,1.2vw,19px)}
+.lede b{color:var(--text-primary);font-weight:600}
+.bar{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px;align-items:center}
+.bar input{background:var(--panel);border:1px solid var(--line-strong);border-radius:999px;padding:13px 20px;color:var(--text-primary);font:inherit;transition:border-color .25s var(--ease);color-scheme:dark}
+.bar input[type=search]{width:min(420px,100%)}
+.bar input::placeholder{color:rgba(169,188,192,.55)}
+.bar input:focus{border-color:var(--accent);outline:none}
+.bar label{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--text-secondary)}
+.nomatch{display:none;color:var(--text-secondary);margin-top:28px;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:24px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;transition:border-color .3s var(--ease),transform .4s var(--ease)}
+.card:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+.card .st{font-family:var(--display);font-weight:500;font-size:15px}
+.card .temp{font-family:var(--display);font-weight:700;font-size:44px;line-height:1;margin:14px 0 2px;color:var(--accent)}
+.card .temp small{font-size:18px;font-weight:500;color:var(--text-secondary)}
+.card .for{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text-secondary)}
+.card .meta{display:grid;gap:5px;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--text-secondary)}
+.card .meta span{display:flex;justify-content:space-between;gap:8px}
+.card .meta b{color:var(--text-primary);font-weight:400;font-size:13px}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);text-align:center;font-family:var(--mono)}
+.wk i{display:block;font-style:normal;font-size:10px;letter-spacing:.04em;color:var(--text-secondary)}
+.wk b{display:block;font-size:12px;font-weight:400;color:var(--text-primary);margin-top:3px}
+.wk span.sel i,.wk span.sel b{color:var(--accent)}
+.stamp{font-family:var(--mono);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;margin-top:26px;letter-spacing:.06em;flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.err{color:var(--heat)}
+.note{font-family:var(--mono);font-size:12px;color:var(--text-secondary);margin-top:10px;letter-spacing:.04em;max-width:80ch}
+footer{padding:32px clamp(16px,4vw,48px);border-top:1px solid var(--line);color:var(--text-secondary);font-size:14px}
+</style>
+<link rel="stylesheet" href="tabbar.css">
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <a class="brand" href="index.html" aria-label="AI Climate Prediction, home">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#12232c"/><path d="M8 24c10-10 22 10 32 0s12-6 16 0M8 34c10-10 22 10 32 0s12-6 16 0M8 44c10-10 22 10 32 0s12-6 16 0" fill="none" stroke="#67e8c5" stroke-width="3.5" stroke-linecap="round"/></svg>
+    AI Climate Prediction
+  </a>
+  <a class="back" href="index.html">← All of India</a>
+</nav>
+
+<main class="sec">
+  <div class="wrap">
+    <p class="kicker">Prediction data · Mumbai</p>
+    <h1>Mumbai, station by station.</h1>
+    <p class="lede">The next seven days' predicted highs at every suburban station, each scored at its
+      own latitude and longitude by the same model, one day feeding the next. <b>Churchgate is not
+      Ghatkopar</b> — the sea keeps the island city cooler than the inland line, and the numbers show it.</p>
+    <div class="bar">
+      <label for="q" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search stations</label>
+      <input id="q" type="search" placeholder="Search a station… Andheri, Thane, Virar" autocomplete="off">
+      <label for="day">DAY</label>
+      <input id="day" type="date">
+    </div>
+    <p class="nomatch" id="nomatch">No station by that name. Try Churchgate, Dadar, Ghatkopar, Kalyan or Panvel.</p>
+    <div class="grid" id="grid" aria-live="polite"></div>
+    <p class="stamp"><span class="dot" aria-hidden="true"></span><span id="stamp">Reading the stations…</span></p>
+    <p class="note" id="note"></p>
+  </div>
+</main>
+
+<footer><strong>AI Climate Prediction.</strong> Open source under the MIT license. Weather data: Open-Meteo.</footer>
+
+<script>
+(() => {
+'use strict';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const grid = document.getElementById('grid'), stamp = document.getElementById('stamp');
+fetch('assets/stations.json', { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
+  const wd = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'short' }).slice(0, 2).toUpperCase();
+  grid.innerHTML = d.stations.map(s =>
+    `<article class="card" data-name="${esc(s.station.toLowerCase())}"><div class="st">${esc(s.station)}</div>` +
+    `<div class="temp">${esc(s.days[0].ours)}<small>°C</small></div><div class="for">TOMORROW'S HIGH, OURS</div>` +
+    `<div class="meta"><span>TODAY<b>${esc(s.today_max)}°</b></span><span>FEED SAYS<b>${esc(s.days[0].feed)}°</b></span></div>` +
+    `<div class="wk" aria-label="Our predicted high for the next seven days">` +
+    s.days.map(x => `<span title="${esc(x.date)} — ours ${esc(x.ours)}°, feed says ${esc(x.feed)}°"><i>${wd(x.date)}</i><b>${Math.round(x.ours)}°</b></span>`).join('') +
+    `</div></article>`).join('');
+  stamp.textContent = `FOR ${d.for_date} · ${d.stations.length} STATIONS · GENERATED ${d.generated_at.replace('T', ' ')} IST`;
+  document.getElementById('note').textContent =
+    `On the held-out test year the model's average error was ${d.test_mae} °C; carrying today's high forward would have been ${d.persistence_mae} °C.`;
+  const S = d.stations, day = document.getElementById('day'), week = S[0].days;
+  day.min = week[0].date; day.max = week[week.length - 1].date; day.value = week[0].date;
+  const applyDay = () => {
+    const k = week.findIndex(x => x.date === day.value);
+    if (k < 0) return;
+    [...grid.children].forEach((card, i) => {
+      const x = S[i].days[k];
+      card.querySelector('.temp').innerHTML = `${esc(x.ours)}<small>°C</small>`;
+      card.querySelector('.for').textContent = k === 0 ? "TOMORROW'S HIGH, OURS" : `HIGH FOR ${day.value}, OURS`;
+      card.querySelectorAll('.meta b')[1].textContent = x.feed + '°';
+      card.querySelectorAll('.wk span').forEach((sp, j) => sp.classList.toggle('sel', j === k));
+    });
+  };
+  day.addEventListener('change', applyDay);
+  applyDay();
+}).catch(() => { stamp.innerHTML = '<span class="err">assets/stations.json is missing. Run: python -m scripts.predict_stations --out site/assets/stations.json</span>'; });
+document.getElementById('q').addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  let shown = 0;
+  for (const card of grid.children){ const hit = !q || card.dataset.name.includes(q); card.style.display = hit ? '' : 'none'; shown += hit; }
+  document.getElementById('nomatch').style.display = shown ? 'none' : 'block';
+});
+})();
+</script>
+<script src="tabbar.js" defer></script>
+</body>
+</html>

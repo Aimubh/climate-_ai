@@ -1,0 +1,344 @@
+{
+ "note": "Every place the pipeline reads, with the coordinates it scored them at.",
+ "source": "scripts/predict_stations.py and the twelve model cities",
+ "places": [
+  {
+   "name": "New Delhi",
+   "kind": "city",
+   "lat": 28.61,
+   "lon": 77.21
+  },
+  {
+   "name": "Jaipur",
+   "kind": "city",
+   "lat": 26.91,
+   "lon": 75.79
+  },
+  {
+   "name": "Lucknow",
+   "kind": "city",
+   "lat": 26.85,
+   "lon": 80.95
+  },
+  {
+   "name": "Ahmedabad",
+   "kind": "city",
+   "lat": 23.02,
+   "lon": 72.57
+  },
+  {
+   "name": "Bhopal",
+   "kind": "city",
+   "lat": 23.26,
+   "lon": 77.41
+  },
+  {
+   "name": "Kolkata",
+   "kind": "city",
+   "lat": 22.57,
+   "lon": 88.36
+  },
+  {
+   "name": "Nagpur",
+   "kind": "city",
+   "lat": 21.15,
+   "lon": 79.09
+  },
+  {
+   "name": "Mumbai",
+   "kind": "city",
+   "lat": 19.08,
+   "lon": 72.88
+  },
+  {
+   "name": "Pune",
+   "kind": "city",
+   "lat": 18.52,
+   "lon": 73.86
+  },
+  {
+   "name": "Hyderabad",
+   "kind": "city",
+   "lat": 17.39,
+   "lon": 78.49
+  },
+  {
+   "name": "Chennai",
+   "kind": "city",
+   "lat": 13.08,
+   "lon": 80.27
+  },
+  {
+   "name": "Bengaluru",
+   "kind": "city",
+   "lat": 12.97,
+   "lon": 77.59
+  },
+  {
+   "name": "Churchgate",
+   "kind": "station",
+   "line": "Western",
+   "lat": 18.935,
+   "lon": 72.827
+  },
+  {
+   "name": "Marine Lines",
+   "kind": "station",
+   "line": "Western",
+   "lat": 18.946,
+   "lon": 72.823
+  },
+  {
+   "name": "Charni Road",
+   "kind": "station",
+   "line": "Western",
+   "lat": 18.952,
+   "lon": 72.819
+  },
+  {
+   "name": "Grant Road",
+   "kind": "station",
+   "line": "Western",
+   "lat": 18.963,
+   "lon": 72.816
+  },
+  {
+   "name": "Mumbai Central",
+   "kind": "station",
+   "line": "Western",
+   "lat": 18.969,
+   "lon": 72.819
+  },
+  {
+   "name": "Lower Parel",
+   "kind": "station",
+   "line": "Western",
+   "lat": 18.996,
+   "lon": 72.83
+  },
+  {
+   "name": "Dadar",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.018,
+   "lon": 72.843
+  },
+  {
+   "name": "Bandra",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.054,
+   "lon": 72.84
+  },
+  {
+   "name": "Santacruz",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.081,
+   "lon": 72.841
+  },
+  {
+   "name": "Vile Parle",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.1,
+   "lon": 72.844
+  },
+  {
+   "name": "Andheri",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.119,
+   "lon": 72.846
+  },
+  {
+   "name": "Jogeshwari",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.136,
+   "lon": 72.848
+  },
+  {
+   "name": "Goregaon",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.164,
+   "lon": 72.849
+  },
+  {
+   "name": "Malad",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.187,
+   "lon": 72.849
+  },
+  {
+   "name": "Kandivali",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.204,
+   "lon": 72.852
+  },
+  {
+   "name": "Borivali",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.229,
+   "lon": 72.857
+  },
+  {
+   "name": "Dahisar",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.25,
+   "lon": 72.859
+  },
+  {
+   "name": "Mira Road",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.281,
+   "lon": 72.871
+  },
+  {
+   "name": "Bhayandar",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.312,
+   "lon": 72.852
+  },
+  {
+   "name": "Vasai Road",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.383,
+   "lon": 72.832
+  },
+  {
+   "name": "Virar",
+   "kind": "station",
+   "line": "Western",
+   "lat": 19.456,
+   "lon": 72.812
+  },
+  {
+   "name": "CSMT",
+   "kind": "station",
+   "line": "Central",
+   "lat": 18.94,
+   "lon": 72.835
+  },
+  {
+   "name": "Byculla",
+   "kind": "station",
+   "line": "Central",
+   "lat": 18.976,
+   "lon": 72.833
+  },
+  {
+   "name": "Sion",
+   "kind": "station",
+   "line": "Central",
+   "lat": 19.046,
+   "lon": 72.863
+  },
+  {
+   "name": "Kurla",
+   "kind": "station",
+   "line": "Central",
+   "lat": 19.065,
+   "lon": 72.879
+  },
+  {
+   "name": "Ghatkopar",
+   "kind": "station",
+   "line": "Central",
+   "lat": 19.086,
+   "lon": 72.908
+  },
+  {
+   "name": "Vikhroli",
+   "kind": "station",
+   "line": "Central",
+   "lat": 19.111,
+   "lon": 72.928
+  },
+  {
+   "name": "Bhandup",
+   "kind": "station",
+   "line": "Central",
+   "lat": 19.141,
+   "lon": 72.937
+  },
+  {
+   "name": "Mulund",
+   "kind": "station",
+   "line": "Central",
+   "lat": 19.172,
+   "lon": 72.956
+  },
+  {
+   "name": "Thane",
+   "kind": "station",
+   "line": "Central",
+   "lat": 19.186,
+   "lon": 72.975
+  },
+  {
+   "name": "Dombivli",
+   "kind": "station",
+   "line": "Central",
+   "lat": 19.216,
+   "lon": 73.087
+  },
+  {
+   "name": "Kalyan",
+   "kind": "station",
+   "line": "Central",
+   "lat": 19.235,
+   "lon": 73.13
+  },
+  {
+   "name": "Wadala",
+   "kind": "station",
+   "line": "Harbour",
+   "lat": 19.016,
+   "lon": 72.858
+  },
+  {
+   "name": "Chembur",
+   "kind": "station",
+   "line": "Harbour",
+   "lat": 19.062,
+   "lon": 72.898
+  },
+  {
+   "name": "Vashi",
+   "kind": "station",
+   "line": "Harbour",
+   "lat": 19.077,
+   "lon": 72.998
+  },
+  {
+   "name": "Nerul",
+   "kind": "station",
+   "line": "Harbour",
+   "lat": 19.033,
+   "lon": 73.016
+  },
+  {
+   "name": "Belapur",
+   "kind": "station",
+   "line": "Harbour",
+   "lat": 19.017,
+   "lon": 73.04
+  },
+  {
+   "name": "Panvel",
+   "kind": "station",
+   "line": "Harbour",
+   "lat": 18.99,
+   "lon": 73.117
+  }
+ ]
+}

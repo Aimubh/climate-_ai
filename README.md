@@ -91,6 +91,27 @@ scripts write. The "Ask the reporter" chat talks to Ollama on the same machine; 
 screenshots the page at desktop and phone sizes, runs the caption flick test and contrast audit, exercises the hold
 button, the form and the chat, and checks for console errors.
 
+## The Android app
+
+`android/` is an Android Studio project that ships the site as a phone app. The page is bundled in the APK and served
+over loopback by a small asset server in `AssetServer.kt`, so it runs with no network at all. A six-tab bar replaces
+the desktop nav: Home, Predictions, Try it, On air, Stations and the Assistant.
+
+A notification posts tomorrow's figure for Mumbai once a day at 7am. The worker carries no network constraint on
+purpose, so it fires offline too: it falls back from the live feed to the last successful fetch to the model run
+bundled in the APK, and says in the notification which of the three it used rather than passing a saved figure off
+as a live one. `ForecastWorker.CITY` and `ForecastWorker.HOUR` change the place and the hour.
+
+Open `android/` in Android Studio, or run `./gradlew installDebug` from it with a device attached. The Assistant tab
+needs Ollama running on the development machine and `adb reverse tcp:11434 tcp:11434`; the rest of the app does not
+care whether it is there.
+
+## The spreadsheet
+
+`climate_ai_data.xlsx` exports what the pipeline holds: the 50 places with the coordinates they were scored at, 350
+forecast rows (every place, every forecast day, ours against the feed) and Mumbai's 9,917-day history. Every derived
+figure is a formula over the sheets, not a pasted result, so the summary follows if a reading changes.
+
 ## Data sources
 
 - [Open-Meteo](https://open-meteo.com): current conditions, forecasts and the historical archive. Free, no key.

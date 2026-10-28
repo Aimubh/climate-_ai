@@ -1,0 +1,14 @@
+# Android Studio / Gradle build output
+build/
+.gradle/
+.kotlin/
+.idea/
+*.iml
+captures/
+.externalNativeBuild
+.cxx
+
+# Points at the SDK on one particular machine; Android Studio regenerates it.
+local.properties
+
+.DS_Store
