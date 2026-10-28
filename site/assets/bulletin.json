@@ -1,126 +1,126 @@
 {
- "headline": "Heat persists in northern India, monsoon influence fades in south",
- "dateline": "2026-10-09, 11:30 IST",
- "on_air": "Good morning, viewers. Today, the heat continues to dominate northern India, with temperatures remaining high. In New Delhi, the temperature is 31.4°C, down slightly from yesterday. Lucknow and Ahmedabad also see minor cooling, with Lucknow dropping to 28.2°C and Ahmedabad to 35.2°C. Tomorrow, New Delhi is expected to reach 32.1°C, while Lucknow and Ahmedabad will hover around 29.2°C and 35.6°C, respectively. The monsoon's influence is waning, as seen in Lucknow, where drizzle persists. In the south, Hyderabad and Chennai are experiencing clear skies, with Hyderabad reaching 34.1°C. Tomorrow, expect a slight increase in temperatures in Hyderabad to 34.1°C. Bangalore, too, will see a minor rise to 30.5°C. The air over New Delhi is moving towards Jaipur, while the air over Mumbai is heading towards Pune. Stay tuned for updates as we move into tomorrow. Good day to you all.",
+ "headline": "Heat persists in Ahmedabad and Mumbai, while monsoon withdrawal affects northern cities",
+ "dateline": "26 October 2026, 16:45 IST",
+ "on_air": "Good evening, viewers. Today, we see a mix of clear skies and overcast conditions across India. The heat is particularly intense in Ahmedabad and Mumbai, with temperatures expected to remain high tomorrow. In Ahmedabad, the temperature will peak at 35.8°C, while in Mumbai, it will hit 36.6°C. Monsoon withdrawal is affecting northern cities like Lucknow and Jaipur, leading to cooler temperatures. Lucknow will see a maximum of 31.2°C, down from 31.6°C today. In Jaipur, the temperature will drop to 31.3°C from 32.2°C. The air over Ahmedabad is heading towards Mumbai, with the system expected to reach Pune in 24 hours, with high confidence. The winds are steady and strong, at 8.4 km/h. In the south, Chennai and Bengaluru will remain overcast, with temperatures cooling slightly. Tomorrow, we'll see a mix of clear and overcast skies, with the monsoon's influence gradually waning. Stay tuned for updates. Back to you.",
  "changes": [
   {
-   "city": "New Delhi",
-   "what_changed": "Temperature down 2.1°C, max temp to 32.1°C, min temp to 22.2°C, clear sky, 0.0 mm rain",
-   "why": "Monsoon withdrawal and a pressure fall likely cause the cooling."
-  },
-  {
    "city": "Lucknow",
-   "what_changed": "Temperature down 0.3°C, max temp to 29.2°C, drizzle, 0.3 mm rain",
-   "why": "Likely due to a pressure fall and a shift in wind direction."
-  },
-  {
-   "city": "Ahmedabad",
-   "what_changed": "Temperature down 1.0°C, max temp to 35.6°C, clear sky, 0.0 mm rain",
-   "why": "A pressure fall and a wind shift likely contribute to the cooling."
-  },
-  {
-   "city": "Hyderabad",
-   "what_changed": "Temperature up 1.0°C, max temp to 34.1°C, clear sky, 0.0 mm rain",
-   "why": "A pressure fall and a wind shift likely cause the warming."
-  }
- ],
- "next": {
-  "system": "the air over New Delhi",
-  "from_city": "New Delhi",
-  "to_city": "Jaipur",
-  "eta_hours": 72,
-  "confidence": "high",
-  "reason": "The wind is steady at 12.2 km/h from the west, indicating a strong and consistent flow."
- },
- "watch": [
-  "Keep an eye on the temperature rise in southern cities like Hyderabad and Bangalore.",
-  "The monsoon's influence is diminishing, so expect clear skies and higher temperatures in the coming days."
- ],
- "source": "local:qwen2.5:7b",
- "generated_at": "2026-10-09T11:41+05:30",
- "cities": [
-  {
-   "city": "New Delhi",
-   "temp_c": 31.4,
-   "sky": "clear sky",
-   "wind_kmh": 5.6,
-   "wind_from": "south-east"
+   "what_changed": "Temperature dropped by 1.1°C, and cloud cover increased from 0% to 1%.",
+   "why": "Monsoon withdrawal is likely causing a drop in temperature and a slight increase in cloud cover."
   },
   {
    "city": "Jaipur",
-   "temp_c": 32.8,
-   "sky": "clear sky",
-   "wind_kmh": 12.2,
-   "wind_from": "west"
-  },
-  {
-   "city": "Lucknow",
-   "temp_c": 28.2,
-   "sky": "drizzle",
-   "wind_kmh": 3.5,
-   "wind_from": "north"
+   "what_changed": "Temperature dropped by 0.9°C, and cloud cover increased from 40% to 41%.",
+   "why": "Likely due to the same monsoon withdrawal affecting northern cities."
   },
   {
    "city": "Ahmedabad",
-   "temp_c": 35.2,
-   "sky": "clear sky",
-   "wind_kmh": 4.3,
-   "wind_from": "west"
-  },
-  {
-   "city": "Bhopal",
-   "temp_c": 33.2,
-   "sky": "clear sky",
-   "wind_kmh": 7.2,
-   "wind_from": "north-west"
-  },
-  {
-   "city": "Kolkata",
-   "temp_c": 30.4,
-   "sky": "overcast",
-   "wind_kmh": 4.1,
-   "wind_from": "north-west"
-  },
-  {
-   "city": "Nagpur",
-   "temp_c": 34.8,
-   "sky": "mainly clear",
-   "wind_kmh": 4.5,
-   "wind_from": "north-west"
+   "what_changed": "Temperature dropped by 0.6°C, and cloud cover increased from 0% to 95%.",
+   "why": "A thunderstorm outflow is likely causing the temperature drop and increased cloud cover."
   },
   {
    "city": "Mumbai",
-   "temp_c": 36.2,
+   "what_changed": "Temperature increased by 0.6°C, and cloud cover increased from 4% to 46%.",
+   "why": "The system over Ahmedabad is likely moving towards Mumbai, bringing in moisture and clouds."
+  }
+ ],
+ "next": {
+  "system": "the rain over Ahmedabad",
+  "from_city": "Ahmedabad",
+  "to_city": "Pune",
+  "eta_hours": 24,
+  "confidence": "high",
+  "reason": "The wind is steady at 8.4 km/h, and the air over Ahmedabad is heading towards Pune."
+ },
+ "watch": [
+  "Keep an eye on the monsoon's withdrawal, as it continues to affect northern cities.",
+  "Stay hydrated and use cooling measures as temperatures remain high in southern cities."
+ ],
+ "source": "local:qwen2.5:7b",
+ "generated_at": "2026-10-26T16:49+05:30",
+ "cities": [
+  {
+   "city": "New Delhi",
+   "temp_c": 27.3,
    "sky": "clear sky",
-   "wind_kmh": 4.0,
+   "wind_kmh": 6.8,
+   "wind_from": "north-west"
+  },
+  {
+   "city": "Jaipur",
+   "temp_c": 30.7,
+   "sky": "mainly clear",
+   "wind_kmh": 12.9,
+   "wind_from": "north-east"
+  },
+  {
+   "city": "Lucknow",
+   "temp_c": 29.7,
+   "sky": "clear sky",
+   "wind_kmh": 8.1,
+   "wind_from": "west"
+  },
+  {
+   "city": "Ahmedabad",
+   "temp_c": 35.7,
+   "sky": "overcast",
+   "wind_kmh": 8.4,
    "wind_from": "south-east"
   },
   {
-   "city": "Pune",
-   "temp_c": 32.5,
+   "city": "Bhopal",
+   "temp_c": 30.2,
    "sky": "mainly clear",
-   "wind_kmh": 9.9,
-   "wind_from": "east"
+   "wind_kmh": 13.4,
+   "wind_from": "north-east"
+  },
+  {
+   "city": "Kolkata",
+   "temp_c": 30.9,
+   "sky": "clear sky",
+   "wind_kmh": 6.4,
+   "wind_from": "north"
+  },
+  {
+   "city": "Nagpur",
+   "temp_c": 32.5,
+   "sky": "clear sky",
+   "wind_kmh": 12.2,
+   "wind_from": "north-east"
+  },
+  {
+   "city": "Mumbai",
+   "temp_c": 33.4,
+   "sky": "clear sky",
+   "wind_kmh": 8.6,
+   "wind_from": "north-west"
+  },
+  {
+   "city": "Pune",
+   "temp_c": 31.1,
+   "sky": "clear sky",
+   "wind_kmh": 13.2,
+   "wind_from": "north-east"
   },
   {
    "city": "Hyderabad",
-   "temp_c": 32.2,
-   "sky": "clear sky",
-   "wind_kmh": 7.6,
-   "wind_from": "east"
+   "temp_c": 29.5,
+   "sky": "mainly clear",
+   "wind_kmh": 16.5,
+   "wind_from": "north-east"
   },
   {
    "city": "Chennai",
-   "temp_c": 33.2,
-   "sky": "clear sky",
-   "wind_kmh": 10.7,
-   "wind_from": "east"
+   "temp_c": 28.3,
+   "sky": "overcast",
+   "wind_kmh": 15.0,
+   "wind_from": "north"
   },
   {
    "city": "Bengaluru",
-   "temp_c": 29.7,
-   "sky": "mainly clear",
-   "wind_kmh": 8.2,
+   "temp_c": 25.8,
+   "sky": "overcast",
+   "wind_kmh": 10.6,
    "wind_from": "north-east"
   }
  ]
