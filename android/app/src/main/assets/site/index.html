@@ -524,7 +524,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
 <button class="botfab" id="botfab" type="button" hidden aria-haspopup="dialog" aria-controls="bot"><span class="mic" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>Ask the reporter</button>
 <section class="bot" id="bot" role="dialog" aria-labelledby="bot-h" hidden>
-  <header><div><b id="bot-h">Ask the reporter</b><small>LOCAL MODEL · RUNS ON THIS MACHINE</small></div><button class="x" id="botclose" type="button" aria-label="Close the chat">×</button></header>
+  <header><div><b id="bot-h">Ask the reporter</b><small>FREE MODEL · ANSWERS FROM THE LIVE FEED</small></div><button class="x" id="botclose" type="button" aria-label="Close the chat">×</button></header>
   <div class="botlog" id="botlog" aria-live="polite"></div>
   <div class="botchips" id="botchips"><button class="chipbtn" type="button">Why is Kolkata cooler today?</button><button class="chipbtn" type="button">Where is Mumbai's rain heading?</button><button class="chipbtn" type="button">Will Pune be hotter tomorrow?</button></div>
   <p class="botstatus" id="botstatus"></p>
@@ -893,14 +893,19 @@ let BULLETIN = null;
   } catch (e) {}
 })();
 
-/* ---------- the bot: a chat with the reporter, answered by the local model through Ollama on this machine ---------- */
+/* ---------- the bot: a chat with the reporter, answered by a free model on OpenRouter ---------- */
 (() => {
-  // Android blocks an app's traffic to the local network, but not to loopback, so
-  // the PC's Ollama is reached through `adb reverse tcp:11434 tcp:11434`.
-  const OLLAMA = 'http://127.0.0.1:11434', MODEL = 'qwen2.5:7b';
+  // Every model here ends in :free, so a question can never put a charge on the account.
+  // The key is injected by AssetServer out of local.properties; it is not in this file.
+  const API = 'https://openrouter.ai/api/v1/chat/completions', KEY = '__OPENROUTER_KEY__';
+  // The free pool is shared and answers 429 often, so a refused model falls through to the next.
+  const MODELS = ['nvidia/nemotron-3.5-super-vl:free',
+                  'nvidia/nemotron-3.5-lightning:free',
+                  'nvidia/nemotron-3-ultra-550b-a55b:free'];
   const fab = document.getElementById('botfab'), panel = document.getElementById('bot'), log = document.getElementById('botlog'), bform = document.getElementById('botform'), input = document.getElementById('botinput'), send = document.getElementById('botsend'), status = document.getElementById('botstatus');
   const history = []; let busy = false, opened = false;
-  fetch(OLLAMA + '/api/version').then(r => r.ok ? r.json() : null).then(v => { if (v) fab.hidden = false; }).catch(e => console.log('ollama probe failed: ' + e));
+  if (KEY && !KEY.startsWith('__')) fab.hidden = false;
+  else console.log('no OpenRouter key: set openrouter.key in local.properties');
   /* ---------- tomorrow, dated by the phone's own clock ---------- */
   const ALL_CITIES = [
     { n: 'New Delhi', la: 28.61, lo: 77.21 }, { n: 'Jaipur', la: 26.91, lo: 75.79 },
@@ -985,22 +990,42 @@ let BULLETIN = null;
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) close(); });
   document.getElementById('botchips').addEventListener('click', e => { const b = e.target.closest('.chipbtn'); if (b) ask(b.textContent); });
   bform.addEventListener('submit', e => { e.preventDefault(); const q = input.value.trim(); if (q) ask(q); });
+  // One model's answer, token by token. Throws on a refusal so ask() can fall to the next model.
+  async function stream(model, messages, el){
+    const res = await fetch(API, { method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY },
+      body: JSON.stringify({ model, messages, stream: true, temperature: 0, max_tokens: 400,
+        reasoning: { enabled: false } }) });   // these models think by default and would spend the budget on it
+    if (!res.ok) throw new Error(String(res.status));
+    const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '', text = '';
+    for (;;) {
+      const { done, value } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true }); let i;
+      while ((i = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith('data:')) continue;              // SSE keep-alive comments are not data
+        const d = line.slice(5).trim(); if (d === '[DONE]') continue;
+        const c = (JSON.parse(d).choices[0].delta || {}).content;
+        if (c) { text += c; el.textContent = text; log.scrollTop = log.scrollHeight; status.textContent = ''; } }
+    }
+    if (!text) throw new Error('empty');
+    return text;
+  }
   async function ask(q){
     if (busy) return; busy = true; send.disabled = true; input.value = '';
     add('user', q); const el = add('reply', ''); history.push({ role: 'user', content: q }); status.textContent = 'READING THE FEED…';
     try {
       await loadLive().catch(() => {});   // today's and tomorrow's numbers, as fresh as the question
-      const res = await fetch(OLLAMA + '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: MODEL, stream: true, options: { temperature: 0, num_ctx: 4096 }, messages: [{ role: 'system', content: SYSTEM() }, ...history.slice(-8)] }) });
-      if (!res.ok) throw new Error(String(res.status));
-      const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '', text = '';
-      for (;;) {
-        const { done, value } = await reader.read(); if (done) break;
-        buf += dec.decode(value, { stream: true }); let i;
-        while ((i = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1); if (!line) continue;
-          const j = JSON.parse(line); if (j.message && j.message.content) { text += j.message.content; el.textContent = text; log.scrollTop = log.scrollHeight; status.textContent = ''; } }
+      const messages = [{ role: 'system', content: SYSTEM() }, ...history.slice(-8)];
+      let text = '', last;
+      for (const model of MODELS) {
+        try { text = await stream(model, messages, el); last = null; break; }
+        catch (e) { last = e; el.textContent = ''; }
       }
+      if (last) throw last;
       history.push({ role: 'assistant', content: text });
-    } catch (e) { history.pop(); el.textContent = e.message === '404' ? `The model is not downloaded. Run: ollama pull ${MODEL}` : 'The reporter did not answer. Is Ollama running on this machine?'; }
+    } catch (e) { history.pop(); el.textContent = e.message === '401'
+        ? 'The OpenRouter key was refused. Check openrouter.key in local.properties.'
+        : 'The reporter did not answer - every free model was busy, or the phone is offline. Try again in a moment.'; }
     status.textContent = ''; busy = false; send.disabled = false;
     if (matchMedia('(min-width: 721px)').matches) input.focus();   // on a phone the keyboard would cover the answer
   }

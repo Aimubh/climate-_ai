@@ -10,10 +10,9 @@ import java.util.concurrent.Executors
 
 /**
  * Serves the bundled site over http on the loopback interface.
- * The page has to come from a loopback origin: the WebView refuses a request to a
- * local address (the Ollama the chat bot talks to) from a page served off a
- * public-looking origin, whatever the CORS headers say. Only the read-only assets
- * that ship inside the APK are served.
+ * The page is served from a loopback origin so fetch() and the chat bot's streaming
+ * response behave as they would on the web; a file:// page gets neither. Only the
+ * read-only assets that ship inside the APK are served.
  */
 class AssetServer(private val assets: AssetManager, private val root: String) : Closeable {
 
@@ -39,7 +38,14 @@ class AssetServer(private val assets: AssetManager, private val root: String) : 
             ?.ifEmpty { "index.html" } ?: return
         val out = it.getOutputStream()
         val body = try {
-            if (path.contains("..")) null else assets.open("$root/$path").readBytes()
+            if (path.contains("..")) null else assets.open("$root/$path").readBytes().let {
+                // The OpenRouter key is not in the page source; it is put in as the page is served.
+                if (path.endsWith(".html"))
+                    it.toString(Charsets.UTF_8)
+                        .replace("__OPENROUTER_KEY__", BuildConfig.OPENROUTER_KEY)
+                        .toByteArray()
+                else it
+            }
         } catch (e: IOException) {
             null
         }
